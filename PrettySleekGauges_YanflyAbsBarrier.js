@@ -3,10 +3,54 @@
  * @plugindesc Yanfly Absorption Barrier Compatibility Patch for Pretty Sleek Gauges.
  * @author superMasterSword
  *
+ * @help 
+ * ----------------------------------------------------------------------------
+ *   Pretty Sleek Gauges Yanfly Absorption Barrier Patch v1.0a
+ *     For Pretty Sleek Gauges versions v1.03 and up
+ * ----------------------------------------------------------------------------
+ *   Free to use in any project with credit to:
+ *     superMasterSword
+ * ----------------------------------------------------------------------------
+ *   !!! NOTICE: Overwrites the following: !!!
+ *     Special_Gauge.prototype.drawGauge
+ *     Special_Gauge.prototype.drawText
+ *     Window_EnemyHPBars.prototype.drawActorHp
+ *
+ *   I will do my best to keep this up-to-date but let me know if you run into
+ *   any issues!
+ * ----------------------------------------------------------------------------
+ * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
+ *   try my best to help you!
  */
 
 (function() {
 
+var parameters = PluginManager.parameters('PrettySleekGauges');
+var defaultTinyHeight = Number(parameters['Tiny Gauge Height'] || 2);
+var animatedNumbers = (parameters['Animated Numbers'] || "true") === "true";
+var animatedGauges = (parameters['Animated Gauges'] || "true") === "true";
+var gaugeOutColor = parameters['Outline Color'] || "#FFFFFF";
+
+var barTypeLeft = String(parameters['Bar Shape']).substring(0,1);
+var barTypeRight = String(parameters['Bar Shape']).substring(1,2);
+var saveBarTypeLeft = barTypeLeft;
+var saveBarTypeRight = barTypeRight;
+var hpBarTypeLeft = (parameters['HP Bar Shape'].length === 2) ? String(parameters['HP Bar Shape']).substring(0,1) : false;
+var hpBarTypeRight = (parameters['HP Bar Shape'].length === 2) ? String(parameters['HP Bar Shape']).substring(1,2) : false;
+var mpBarTypeLeft = (parameters['MP Bar Shape'].length === 2) ? String(parameters['MP Bar Shape']).substring(0,1) : false;
+var mpBarTypeRight = (parameters['MP Bar Shape'].length === 2) ? String(parameters['MP Bar Shape']).substring(1,2) : false;
+var tpBarTypeLeft = (parameters['TP Bar Shape'].length === 2) ? String(parameters['TP Bar Shape']).substring(0,1) : false;
+var tpBarTypeRight = (parameters['TP Bar Shape'].length === 2) ? String(parameters['TP Bar Shape']).substring(1,2) : false;
+
+var showEHPHP = (parameters['Show Enemy HP Text'] || "false") === "true";
+var textYOffset = parseInt(parameters['HP Text Y Offset']) || 0;
+var showEHPText = (parameters['Show Enemy HP Value'] || "true") === "true";
+var shouldDrawEnemyMP = (parameters['Show Enemy MP'] || "true") === "true";
+var drawEnemyMPWhenNoMP = (parameters['Show MP Bar When MMP is 0'] || "true") === "true";
+var tinyWidthAdjust = parseInt(parameters['Tiny Gauge Width Adjust']) || 0;
+var tinyGaugeXOffset = parseInt(parameters['Tiny Gauge X Offset']) || 0;
+var tinyGaugeYOffset = parseInt(parameters['Tiny Gauge Y Offset']) || 0;
+var shouldDrawEnemyTP = (parameters['Show Enemy TP'] || "true") === "true";
 
 var alias_window_base_drawactorhp_psg = Window_Base.prototype.drawActorHp;
 Window_Base.prototype.drawActorHp = function(actor, x, y, width) {

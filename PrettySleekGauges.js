@@ -365,7 +365,6 @@ var EHPStateXOffset = parseInt(parameters['State X Offset']) || 0;
 var EHPStateYOffset = parseInt(parameters['State Y Offset']) || 30;
 var shouldDrawEnemyMP = (parameters['Show Enemy MP'] || "true") === "true";
 var drawEnemyMPWhenNoMP = (parameters['Show MP Bar When MMP is 0'] || "true") === "true";
-var defaultTinyHeight = parseInt(parameters['Tiny Gauge Height']) || 2;
 var tinyWidthAdjust = parseInt(parameters['Tiny Gauge Width Adjust']) || 0;
 var tinyGaugeXOffset = parseInt(parameters['Tiny Gauge X Offset']) || 0;
 var tinyGaugeYOffset = parseInt(parameters['Tiny Gauge Y Offset']) || 0;
