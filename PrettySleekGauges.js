@@ -306,13 +306,10 @@ Imported.PrettySleekGauges = true;
  *  - added support for EXP gauges and individual bar styles
  * ----------------------------------------------------------------------------
  * superMasterSword's edits:
- * - Compatibility with Yanfly's Absorption Barrier (see addon)
- * - Changed all uses of $dataEnemies[enemyObj.enemyId()] to enemyObj.enemy()
- * - Replaced Special_Gauge _critTextColor property with _type property that
- *   handles crit text colors & keeps track of bar type regardless of labels
- * - Made it possible to show a number value without having a maximum
- * - Added a check to stop actor target window from animating when switching
- *   between actors on the status screen
+ * - compatibility with Yanfly's Absorption Barrier (see addon)
+ * - all gauges no longer need a maximum value to work
+ * - gauges won't animate when picking an actor to target during battle
+ * - changed how critical text colors are handled
  * ----------------------------------------------------------------------------
  * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
  *   try my best to help you!
