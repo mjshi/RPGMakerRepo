@@ -306,13 +306,10 @@ Imported.PrettySleekGauges = true;
  *  - added support for EXP gauges and individual bar styles
  * ----------------------------------------------------------------------------
  * superMasterSword's edits:
- * - Compatibility with Yanfly's Absorption Barrier (see addon)
- * - Changed all uses of $dataEnemies[enemyObj.enemyId()] to enemyObj.enemy()
- * - Replaced Special_Gauge _critTextColor property with _type property that
- *   handles crit text colors & keeps track of bar type regardless of labels
- * - Made it possible to show a number value without having a maximum
- * - Added a check to stop actor target window from animating when switching
- *   between actors on the status screen
+ * - compatibility with Yanfly's Absorption Barrier (see addon)
+ * - all gauges no longer need a maximum value to work
+ * - gauges won't animate when picking an actor to target during battle
+ * - changed how critical text colors are handled
  * ----------------------------------------------------------------------------
  * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
  *   try my best to help you!
@@ -365,7 +362,6 @@ var EHPStateXOffset = parseInt(parameters['State X Offset']) || 0;
 var EHPStateYOffset = parseInt(parameters['State Y Offset']) || 30;
 var shouldDrawEnemyMP = (parameters['Show Enemy MP'] || "true") === "true";
 var drawEnemyMPWhenNoMP = (parameters['Show MP Bar When MMP is 0'] || "true") === "true";
-var defaultTinyHeight = parseInt(parameters['Tiny Gauge Height']) || 2;
 var tinyWidthAdjust = parseInt(parameters['Tiny Gauge Width Adjust']) || 0;
 var tinyGaugeXOffset = parseInt(parameters['Tiny Gauge X Offset']) || 0;
 var tinyGaugeYOffset = parseInt(parameters['Tiny Gauge Y Offset']) || 0;
@@ -404,7 +400,7 @@ Window_Base.prototype.makeGaugeKey = function(x, y) {
 
 Window_Base.prototype.drawActorHp = function(actor, x, y, width) {
 	width = width || 186;
-	this.drawAnimatedGauge(x, y, width, actor.hpRate(), this.hpGaugeColor1(), this.hpGaugeColor2(), criticalHP);
+	this.drawAnimatedGauge(x, y, width, actor.hpRate(), this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp);
 	this._gauges[this.makeGaugeKey(x, y)].update();
 }
@@ -498,7 +494,6 @@ Special_Gauge.prototype.initialize = function(x, y, w, r, c1, c2, basewindow, h,
 	this._fallSprites = [];
 	this._showEHPHP = true;
 	this._showEHPText = true;
-	this.refresh();
 }
 
 Special_Gauge.prototype.setTextVisibility = function(hpText, hpNum) {
@@ -566,7 +561,6 @@ Special_Gauge.prototype.setRate = function(rate) {
 	if (rate != this._maxRate) {
 		this._maxRate = rate;
 		this._speedRate = Math.abs(this._curRate - this._maxRate) / 60;
-		//TODO: More Falling Sprite Stuff
 	}
 }
 
@@ -802,7 +796,7 @@ Window_EnemyHPBars.prototype.drawActorHp = function(actor, x, y, width) {
 
 	if ((shouldDrawEnemyTP && !actor.enemy().meta.HideEnemyTPBar) || (!shouldDrawEnemyTP && actor.enemy().meta.ShowEnemyTPBar)) {
 		this.drawTinyGauge(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset, width + tinyWidthAdjust, actor.tpRate(), this.tpGaugeColor1(), this.tpGaugeColor2(), "tp");
-		this._gauges[this.makeTGaugeKey(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset)].setExtra(TextManager.tpA, actor.tp, actor.mtp);
+		this._gauges[this.makeTGaugeKey(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset)].setExtra(TextManager.tpA, actor.tp, actor.maxTp());
 	}
 }
 
