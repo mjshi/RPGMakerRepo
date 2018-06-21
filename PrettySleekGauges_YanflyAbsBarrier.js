@@ -23,6 +23,12 @@
  *   try my best to help you!
  */
 
+if (Imported.PrettySleekGauges && Imported.YEP_AbsorptionBarrier) {
+/* added an if out here to not make changes or crash if neither other plugin
+   is installed and also so to take out Imported.YEP_AbsorptionBarrier in ifs
+   (shouldn't it only ever change anything if it's imported? also kind of ends
+   up just overwriting more functions though */
+
 (function() {
 
 var parameters = PluginManager.parameters('PrettySleekGauges');
@@ -54,19 +60,15 @@ var shouldDrawEnemyTP = (parameters['Show Enemy TP'] || "true") === "true";
 
 var alias_window_base_drawactorhp_psg = Window_Base.prototype.drawActorHp;
 Window_Base.prototype.drawActorHp = function(actor, x, y, width) {
-	if (Imported.YEP_AbsorptionBarrier) {
-		this.drawAnimatedGauge(x, y, (width || 186), actor, this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
-		this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp);
-		this._gauges[this.makeGaugeKey(x, y)].update();
-	} else {
-		alias_window_base_drawactorhp_psg.call(this, actor, x, y, width);
-	}
+	this.drawAnimatedGauge(x, y, (width || 186), actor, this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
+	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp);
+	this._gauges[this.makeGaugeKey(x, y)].update();
 }
 
 var alias_special_gauge_initialize = Special_Gauge.prototype.initialize;
 Special_Gauge.prototype.initialize = function(x, y, w, r, c1, c2, basewindow, h, t) {
 	alias_special_gauge_initialize.call(this, x, y, w, r, c1, c2, basewindow, h, t);
-	if (Imported.YEP_AbsorptionBarrier && this._type === "hp" && typeof r !== "number") this.setRate(r);
+	if (this._type === "hp" && typeof r !== "number") this.setRate(r);
 	this.refresh();
 }
 
@@ -80,7 +82,7 @@ Special_Gauge.prototype.update = function() {
 	if (this.doneUpdating()) return;
 	alias_special_gauge_update.call(this);
 	
-	if (Imported.YEP_AbsorptionBarrier && this._type === "hp") {
+	if (this._type === "hp") {
 		if (this._curAbspRate > this._maxAbspRate) this._curAbspRate -= this._abspSpdRate;
 		if (this._curAbsp > this._maxAbsp) this._curAbsp -= this._abspSpd;
 		
@@ -92,8 +94,9 @@ Special_Gauge.prototype.update = function() {
 		if (Math.abs(this._curAbsp - this._maxAbsp) < this._abspSpd)
 			this._curAbsp = this._maxAbsp;
 		
-		if (!animatedNumbers || this._window instanceof Window_BattleActor) this._curAbsp = this._maxAbsp;
-		if (!animatedGauges || this._window instanceof Window_BattleActor) this._curAbspRate = this._maxAbspRate;
+		if (!animatedNumbers || this.shouldAnimate()) this._curAbsp = this._maxAbsp;
+		if (!animatedGauges || this.shouldAnimate()) this._curAbspRate = this._maxAbspRate;
+		/* changed to reference this.shouldAnimate() like the main plugin for consistency */
 	}
 	
 	this.refresh();
@@ -104,7 +107,7 @@ Special_Gauge.prototype.setRate = function(rate) {
 	if (typeof rate === "number") {
 		alias_special_gauge_setRate.call(this, rate);
 
-	} else if (Imported.YEP_AbsorptionBarrier && typeof rate === "object" && rate instanceof Game_Battler) {
+	} else if (typeof rate === "object" && rate instanceof Game_Battler) {
 		if (rate.barrierPoints() > 0) {
 			if (rate.hp + rate.barrierPoints() > rate.mhp) {
 				var max = rate.hp + rate.barrierPoints();
@@ -117,7 +120,8 @@ Special_Gauge.prototype.setRate = function(rate) {
 			var rate2 = (rate.hp + rate.barrierPoints()) / max;
 			if (rate1 != this._maxRate) {
 				this._maxRate = rate1;
-				if (this._curRate === undefined) this._curRate = this._maxRate;
+				if (typeof this._curRate !== "number") this._curRate = this._maxRate;
+				/* same problem as below */
 				this._speedRate = Math.abs(this._curRate - this._maxRate) / 60;
 				if (this._curAbspRate === 0) this._curAbspRate = this._curRate;
 			}
@@ -135,11 +139,24 @@ Special_Gauge.prototype.setRate = function(rate) {
 		} else {
 			if (rate.hpRate() != this._maxRate) {
 				this._maxRate = rate.hpRate();
-				if (this._curRate === undefined) this._curRate = this._maxRate;
+				if (typeof this._curRate !== "number") this._curRate = this._maxRate;
+				/* previous check expected this._curRate to be undefined, but with this
+				   version it was already set to be an actor. This check should work
+				   work with both versions anyway */
 				this._speedRate = Math.abs(this._curRate - this._maxRate) / 60;
 			}
-			this._curAbspRate = this._maxAbspRate = this._abspSpdRate = 0;
-			this._curAbsp = this._maxAbsp = this._abspSpd = 0;
+			if (!this._maxAbsp || this._curRate === this._curAbspRate) {
+				this._curAbspRate = this._maxAbspRate = this._abspSpdRate = 0;
+				this._curAbsp = this._maxAbsp = this._abspSpd = 0;
+			} else {
+				this._maxAbspRate = rate.hpRate();
+				this._abspSpdRate = Math.abs(this._curAbspRate - this._maxAbspRate) / 60;
+				this._maxAbsp = 0;
+				this._abspSpd = this._curAbsp / 60;
+			}
+			/* Originally always made them equal 0 to ensure they weren't undefined
+			   initially, but now checks to see if they're undefined, and whether to
+			   animate or not */
 		}
 	}
 }
@@ -166,7 +183,7 @@ Special_Gauge.prototype.drawGauge = function() {
 	}
 
 	this._window.contents.drawTrap(this._x, gy, this._width - 2, this._height, this._window.gaugeBackColor(), true);
-	if (Imported.YEP_AbsorptionBarrier && this._type === "hp" && this._curAbsp > 0) {
+	if (this._type === "hp" && this._curAbsp > 0) {
 		var fill_wa = Math.round((this._width - 2) * this._curAbspRate);
 		var c1 = this._window.barrierColor1();
 		var c2 = this._window.barrierColor2();
@@ -198,34 +215,45 @@ Special_Gauge.prototype.drawText = function() {
 				}
 			}
 			
-			var valWidth = this._window.textWidth(String(this._maxVal || this._curVal));
+			var valWidth = this._window.textWidth(String(Math.round(this._maxVal || this._curVal)));
 			var slshWidth = this._window.textWidth("/");
 			var xr = this._x + this._width;
 			var x1 = xr - valWidth;
 			var x2 = x1 - slshWidth;
 			var x3 = x2 - valWidth;
-			if (Imported.YEP_AbsorptionBarrier && this._type === "hp" && this._curAbsp > 0) {
-				var abspWidth = this._window.textWidth("+" + this._curAbsp);
+			if (this._type === "hp" && this._curAbsp > 0) {
+				var abspWidth = this._window.textWidth("+" + Math.round(this._curAbsp));
+				/* rounded all uses of this._curAbsp to fix weird display issues when Absorption Barrier values
+				   were changing */
 				if (this._maxVal && x3 - abspWidth >= this._x + lblWidth) {
 					this._window.drawText(Math.round(this._curVal), x3 - abspWidth, this._y + this._yOffset,
 						valWidth, "right");
 					var color = "#";
 					for (var i = 0; i < 3; i++) color += Yanfly.Param.ABRPop[i].toString(16).padZero(2);
 					this._window.changeTextColor(color);
-					this._window.drawText("+" + this._curAbsp, x2 - abspWidth, this._y + this._yOffset,
+					this._window.drawText("+" + Math.round(this._curAbsp), x2 - abspWidth, this._y + this._yOffset,
 						abspWidth, "right");
+					/* rounded this._curAbsp here too */
 					this._window.changeTextColor(this._window.normalColor());
 					this._window.drawText("/", x2, this._y + this._yOffset, slshWidth, "right");
 					this._window.drawText(this._maxVal, x1, this._y + this._yOffset, valWidth, "right");
 					return;
-				} else if (!this._maxVal && x1 - abspWidth >= this._x + lblWidth) {
+				} else if (x1 - abspWidth >= this._x + lblWidth) {
+				/* Now doesn't require there to be no existing max value to show Absorption Barrier health.
+				   You may want to add an option to disable this, as having this have higher priority than
+				   showing the max may be weird (if an enemy gains an Absorption Barrier it sometimes
+				   makes it so there isn't enough space for the max and barrier value, making max disappear.
+				   Although I decided to leave it because I thought seeing their barrier value might be more
+				   valuable than seeing their max. Alternatively you could add
+				   "&& (!this._maxVal || x3 < this._x + lblWidth)" to give the barrier lower priority. */
 					this._window.drawText(Math.round(this._curVal), x1 - abspWidth, this._y + this._yOffset,
 						valWidth, "right");
 					var color = "#";
 					for (var i = 0; i < 3; i++) color += Yanfly.Param.ABRPop[i].toString(16).padZero(2);
 					this._window.changeTextColor(color);
-					this._window.drawText("+" + this._curAbsp, xr - abspWidth, this._y + this._yOffset,
+					this._window.drawText("+" + Math.round(this._curAbsp), xr - abspWidth, this._y + this._yOffset,
 						abspWidth, "right");
+					/* rounded this._curAbsp here too */
 					return;
 				}
 			}
@@ -252,12 +280,7 @@ Window_EnemyHPBars.prototype.drawActorHp = function(actor, x, y, width) {
 	barTypeLeft = actor.enemy().meta.BarTypeLeft || hpBarTypeLeft || barTypeLeft;
 	barTypeRight = actor.enemy().meta.BarTypeRight || hpBarTypeRight || barTypeRight;
 
-	if (Imported.YEP_AbsorptionBarrier) {
-		this.drawAnimatedGauge(x, y, width, actor, this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
-	} else {
-		this.drawAnimatedGauge(x, y, width, actor.hpRate(), this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
-	}
-
+	this.drawAnimatedGauge(x, y, width, actor, this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp, textYOffset);
 	this._gauges[this.makeGaugeKey(x, y)].setTextVisibility(showEHPHP, showEHPText);
 
@@ -272,8 +295,11 @@ Window_EnemyHPBars.prototype.drawActorHp = function(actor, x, y, width) {
 
 	if ((shouldDrawEnemyTP && !actor.enemy().meta.HideEnemyTPBar) || (!shouldDrawEnemyTP && actor.enemy().meta.ShowEnemyTPBar)) {
 		this.drawTinyGauge(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset, width + tinyWidthAdjust, actor.tpRate(), this.tpGaugeColor1(), this.tpGaugeColor2(), "tp");
-		this._gauges[this.makeTGaugeKey(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset)].setExtra(TextManager.tpA, actor.tp, actor.mtp);
+		this._gauges[this.makeTGaugeKey(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset)].setExtra(TextManager.tpA, actor.tp, actor.maxTp());
+		/* also fixed maxTp() here */
 	}
 }
 
 })();
+
+}
