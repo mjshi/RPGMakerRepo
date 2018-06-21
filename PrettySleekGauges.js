@@ -400,7 +400,8 @@ Window_Base.prototype.makeGaugeKey = function(x, y) {
 
 Window_Base.prototype.drawActorHp = function(actor, x, y, width) {
 	width = width || 186;
-	this.drawAnimatedGauge(x, y, width, actor.hpRate(), this.hpGaugeColor1(), this.hpGaugeColor2(), criticalHP);
+	this.drawAnimatedGauge(x, y, width, actor.hpRate(), this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
+	/* for some reason you forgot to replace criticalHP with "hp" here */
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp);
 	this._gauges[this.makeGaugeKey(x, y)].update();
 }
@@ -494,7 +495,10 @@ Special_Gauge.prototype.initialize = function(x, y, w, r, c1, c2, basewindow, h,
 	this._fallSprites = [];
 	this._showEHPHP = true;
 	this._showEHPText = true;
-	this.refresh();
+/*	this.refresh();
+    	This would cause the gauge to be drawn before the rate is properly set, causing
+    	it to multiply width by an actor giving a parameter is non-finite error.
+	setExtra refreshes anyway, and it's always called immediately after this. */
 }
 
 Special_Gauge.prototype.setTextVisibility = function(hpText, hpNum) {
@@ -798,7 +802,8 @@ Window_EnemyHPBars.prototype.drawActorHp = function(actor, x, y, width) {
 
 	if ((shouldDrawEnemyTP && !actor.enemy().meta.HideEnemyTPBar) || (!shouldDrawEnemyTP && actor.enemy().meta.ShowEnemyTPBar)) {
 		this.drawTinyGauge(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset, width + tinyWidthAdjust, actor.tpRate(), this.tpGaugeColor1(), this.tpGaugeColor2(), "tp");
-		this._gauges[this.makeTGaugeKey(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset)].setExtra(TextManager.tpA, actor.tp, actor.mtp);
+		this._gauges[this.makeTGaugeKey(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset)].setExtra(TextManager.tpA, actor.tp, actor.maxTp());
+		/* switched actor.mtp to actor.maxTp() because for some reason mtp is not a thing, however, maxTp() most certainly is a thing */
 	}
 }
 
