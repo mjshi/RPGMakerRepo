@@ -70,8 +70,9 @@ Window_BattleStatus.prototype.drawActorTp = function(actor, x, y, width) {
 	this._gauges[this.makeGaugeKey(x, y)].update();
 }
 
+var alias_Special_Gauge_doneUpdating = Special_Gauge.prototype.doneUpdating;
 Special_Gauge.prototype.doneUpdating = function() {
-	return !(SceneManager._scene instanceof Scene_Battle) && this._curRate === this._maxRate && this._curVal === this._setVal;
+	return !(SceneManager._scene instanceof Scene_Battle) && alias_Special_Gauge_doneUpdating.call(this);
 };
 
 }

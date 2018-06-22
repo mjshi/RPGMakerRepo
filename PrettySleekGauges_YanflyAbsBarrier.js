@@ -24,11 +24,6 @@
  */
 
 if (Imported.PrettySleekGauges && Imported.YEP_AbsorptionBarrier) {
-/* added an if out here to not make changes or crash if neither other plugin
-   is installed and also so to take out Imported.YEP_AbsorptionBarrier in ifs
-   (shouldn't it only ever change anything if it's imported? also kind of ends
-   up just overwriting more functions though */
-
 (function() {
 
 var parameters = PluginManager.parameters('PrettySleekGauges');
@@ -58,7 +53,6 @@ var tinyGaugeXOffset = parseInt(parameters['Tiny Gauge X Offset']) || 0;
 var tinyGaugeYOffset = parseInt(parameters['Tiny Gauge Y Offset']) || 0;
 var shouldDrawEnemyTP = (parameters['Show Enemy TP'] || "true") === "true";
 
-var alias_window_base_drawactorhp_psg = Window_Base.prototype.drawActorHp;
 Window_Base.prototype.drawActorHp = function(actor, x, y, width) {
 	this.drawAnimatedGauge(x, y, (width || 186), actor, this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp);
@@ -69,7 +63,6 @@ var alias_special_gauge_initialize = Special_Gauge.prototype.initialize;
 Special_Gauge.prototype.initialize = function(x, y, w, r, c1, c2, basewindow, h, t) {
 	alias_special_gauge_initialize.call(this, x, y, w, r, c1, c2, basewindow, h, t);
 	if (this._type === "hp" && typeof r !== "number") this.setRate(r);
-	this.refresh();
 }
 
 var alias_special_gauge_doneUpdating = Special_Gauge.prototype.doneUpdating;
@@ -140,9 +133,6 @@ Special_Gauge.prototype.setRate = function(rate) {
 			if (rate.hpRate() != this._maxRate) {
 				this._maxRate = rate.hpRate();
 				if (typeof this._curRate !== "number") this._curRate = this._maxRate;
-				/* previous check expected this._curRate to be undefined, but with this
-				   version it was already set to be an actor. This check should work
-				   work with both versions anyway */
 				this._speedRate = Math.abs(this._curRate - this._maxRate) / 60;
 			}
 			if (!this._maxAbsp || this._curRate === this._curAbspRate) {
@@ -154,9 +144,6 @@ Special_Gauge.prototype.setRate = function(rate) {
 				this._maxAbsp = 0;
 				this._abspSpd = this._curAbsp / 60;
 			}
-			/* Originally always made them equal 0 to ensure they weren't undefined
-			   initially, but now checks to see if they're undefined, and whether to
-			   animate or not */
 		}
 	}
 }
@@ -223,8 +210,6 @@ Special_Gauge.prototype.drawText = function() {
 			var x3 = x2 - valWidth;
 			if (this._type === "hp" && this._curAbsp > 0) {
 				var abspWidth = this._window.textWidth("+" + Math.round(this._curAbsp));
-				/* rounded all uses of this._curAbsp to fix weird display issues when Absorption Barrier values
-				   were changing */
 				if (this._maxVal && x3 - abspWidth >= this._x + lblWidth) {
 					this._window.drawText(Math.round(this._curVal), x3 - abspWidth, this._y + this._yOffset,
 						valWidth, "right");
@@ -239,13 +224,6 @@ Special_Gauge.prototype.drawText = function() {
 					this._window.drawText(this._maxVal, x1, this._y + this._yOffset, valWidth, "right");
 					return;
 				} else if (x1 - abspWidth >= this._x + lblWidth) {
-				/* Now doesn't require there to be no existing max value to show Absorption Barrier health.
-				   You may want to add an option to disable this, as having this have higher priority than
-				   showing the max may be weird (if an enemy gains an Absorption Barrier it sometimes
-				   makes it so there isn't enough space for the max and barrier value, making max disappear.
-				   Although I decided to leave it because I thought seeing their barrier value might be more
-				   valuable than seeing their max. Alternatively you could add
-				   "&& (!this._maxVal || x3 < this._x + lblWidth)" to give the barrier lower priority. */
 					this._window.drawText(Math.round(this._curVal), x1 - abspWidth, this._y + this._yOffset,
 						valWidth, "right");
 					var color = "#";
@@ -296,7 +274,6 @@ Window_EnemyHPBars.prototype.drawActorHp = function(actor, x, y, width) {
 	if ((shouldDrawEnemyTP && !actor.enemy().meta.HideEnemyTPBar) || (!shouldDrawEnemyTP && actor.enemy().meta.ShowEnemyTPBar)) {
 		this.drawTinyGauge(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset, width + tinyWidthAdjust, actor.tpRate(), this.tpGaugeColor1(), this.tpGaugeColor2(), "tp");
 		this._gauges[this.makeTGaugeKey(x + tinyGaugeXOffset, y + 1 + tinyGaugeYOffset)].setExtra(TextManager.tpA, actor.tp, actor.maxTp());
-		/* also fixed maxTp() here */
 	}
 }
 
