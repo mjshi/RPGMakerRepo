@@ -4,8 +4,8 @@
  *
  * @help 
  * ----------------------------------------------------------------------------
- *   Pretty Sleek Gauges Yanfly Battle Status Window Patch v1.0a
- *     For Pretty Sleek Gauges versions v1.02b and up
+ *   Pretty Sleek Gauges Yanfly Battle Status Window Patch v1.0b
+ *     For Pretty Sleek Gauges versions v1.03 and up
  * ----------------------------------------------------------------------------
  *   Installation: Place below Pretty Sleek Gauges and Yanfly Battle Status.
  *   May slightly impact performance, hence, this is a separate plugin.
