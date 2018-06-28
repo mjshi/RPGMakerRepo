@@ -38,6 +38,10 @@ Imported.PrettySleekGauges = true;
  * @type number
  * @default 8
  *
+ * @param Text Font Size
+ * @desc Font size of the gauges.
+ * @default 28
+ *
  * @param Text Right Buffer
  * @desc How many pixels to buffer the current HP/MP/TP by.
  * @default 2
@@ -213,6 +217,12 @@ Imported.PrettySleekGauges = true;
  * @type boolean
  * @default false
  *
+ * @param Don't Animate In Menu Status
+ * @desc Whether or not to animate in the menu status
+ * (true/false)
+ * @type boolean
+ * @default true
+ *
  * @param Don't Animate In Actor Targeting
  * @desc Whether or not to animate in the actor targeting window during battle
  * (true/false)
@@ -264,7 +274,7 @@ Imported.PrettySleekGauges = true;
  * @param
  * @help 
  * ----------------------------------------------------------------------------
- *   Pretty Sleek Gauges v1.03a
+ *   Pretty Sleek Gauges v1.03b
  * ----------------------------------------------------------------------------
  *   Free to use in any project with credit to:
  *     Vlue             (original plugin)
@@ -333,12 +343,13 @@ function Line_Gauge() {
 (function() {
 
 var parameters = PluginManager.parameters('PrettySleekGauges');
-var defaultHeight = Number(parameters['Gauge Height'] || 8);
-var defaultTinyHeight = Number(parameters['Tiny Gauge Height'] || 2);
+var defaultHeight = parseInt(parameters['Gauge Height'] || 8);
+var defaultTinyHeight = parseInt(parameters['Tiny Gauge Height'] || 2);
 var animatedNumbers = (parameters['Animated Numbers'] || "true") === "true";
 var animatedGauges = (parameters['Animated Gauges'] || "true") === "true";
 var gaugeOutColor = parameters['Outline Color'] || "#FFFFFF";
-var textRightBuffer = Number(parameters['Text Right Buffer'] || 2);
+var textRightBuffer = parseInt(parameters['Text Right Buffer'] || 2);
+var gaugeFontSize = parseInt(parameters['Text Font Size'] || 28)
 
 var barTypeLeft = String(parameters['Bar Shape']).substring(0,1);
 var barTypeRight = String(parameters['Bar Shape']).substring(1,2);
@@ -372,6 +383,7 @@ var tinyGaugeXOffset = parseInt(parameters['Tiny Gauge X Offset']) || 0;
 var tinyGaugeYOffset = parseInt(parameters['Tiny Gauge Y Offset']) || 0;
 var shouldDrawEnemyTP = (parameters['Show Enemy TP'] || "true") === "true";
 var stopAnimatingOnActorStatus = (parameters["Don't Animate In Status"] || "false") === "true";
+var stopAnimatingOnActorMenuStatus = (parameters["Don't Animate In Menu Status"] || "false") === "true";
 var stopAnimatingOnActorTarget = (parameters["Don't Animate In Actor Targeting"] || "true") === "true";
 
 var criticalHP = (parameters['Critical HP Change'] || "true") === "true";
@@ -547,6 +559,7 @@ Special_Gauge.prototype.update = function() {
 Special_Gauge.prototype.shouldAnimate = function() {
 	if (stopAnimatingOnActorTarget && this._window instanceof Window_BattleActor) return true;
 	if (stopAnimatingOnActorStatus && this._window instanceof Window_Status) return true;
+	if (stopAnimatingOnActorMenuStatus && this._window instanceof Window_MenuStatus) return true;
 	return false;
 };
 
@@ -615,14 +628,16 @@ Special_Gauge.prototype.drawGauge = function() {
 }
 
 Special_Gauge.prototype.fontSize = function() {
-	return 28;
+	return gaugeFontSize;
 }
 
 Special_Gauge.prototype.drawText = function() {
 	if (this._vocab) {
 		var width = this._width;
 		var x = this._x;
-		this._window.fontSize = this.fontSize();
+		var storeFontSize = this._window.contents.fontSize;
+		this._window.contents.fontSize = this.fontSize();
+
 		if (this._showEHPHP) {
 			this._window.changeTextColor(this._window.systemColor());
 			this._window.drawText(this._text, this._x + 1, this._y + this._yOffset);
@@ -650,6 +665,8 @@ Special_Gauge.prototype.drawText = function() {
 				this._window.drawText(this._maxVal, x, this._y + this._yOffset, width, "right");
 			}
 		}
+
+		this._window.contents.fontSize = storeFontSize;
 	}
 }
 
