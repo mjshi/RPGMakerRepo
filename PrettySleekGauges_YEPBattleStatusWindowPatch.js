@@ -4,8 +4,8 @@
  *
  * @help 
  * ----------------------------------------------------------------------------
- *   Pretty Sleek Gauges Yanfly Battle Status Window Patch v1.0b
- *     For Pretty Sleek Gauges versions v1.03 and up
+ *   Pretty Sleek Gauges Yanfly Battle Status Window Patch v1.0c
+ *     For Pretty Sleek Gauges versions v1.03c and up
  * ----------------------------------------------------------------------------
  *   Installation: Place below Pretty Sleek Gauges and Yanfly Battle Status.
  *   May slightly impact performance, hence, this is a separate plugin.
@@ -35,7 +35,6 @@ var criticalTP = (PluginManager.parameters('PrettySleekGauges')['Critical TP Cha
 
 Window_BattleStatus.prototype.drawGaugeArea = function(rect, actor) {
     this.contents.fontSize = Yanfly.Param.BSWParamFontSize;
-    this._enableYBuffer = true;
     var wy = rect.y + rect.height - this.lineHeight();
     var wymod = 8 * 2 + 6;
     if (this.getGaugesDrawn(actor) <= 2) {
@@ -46,7 +45,6 @@ Window_BattleStatus.prototype.drawGaugeArea = function(rect, actor) {
       this.drawActorTp(actor, rect.x + ww, wy, ww);
     }
     this.drawActorHp(actor, rect.x, wy - wymod, rect.width);
-    this._enableYBuffer = false;
 };
 
 Window_BattleStatus.prototype.drawActorHp = function(actor, x, y, width) {
@@ -74,6 +72,12 @@ var alias_Special_Gauge_doneUpdating = Special_Gauge.prototype.doneUpdating;
 Special_Gauge.prototype.doneUpdating = function() {
 	return !(SceneManager._scene instanceof Scene_Battle) && alias_Special_Gauge_doneUpdating.call(this);
 };
+
+var alias_Special_Gauge_fontSize = Special_Gauge.prototype.fontSize;
+Special_Gauge.prototype.fontSize = function() {
+	if (this._window instanceof Window_BattleStatus) return Yanfly.Param.BSWParamFontSize;
+	return alias_Special_Gauge_fontSize.call(this);
+}
 
 }
 

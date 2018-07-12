@@ -274,7 +274,7 @@ Imported.PrettySleekGauges = true;
  * @param
  * @help 
  * ----------------------------------------------------------------------------
- *   Pretty Sleek Gauges v1.03b
+ *   Pretty Sleek Gauges v1.03c
  * ----------------------------------------------------------------------------
  *   Free to use in any project with credit to:
  *     Vlue             (original plugin)
@@ -302,6 +302,10 @@ Imported.PrettySleekGauges = true;
  *    <ShowEnemyTPBar>
  *  for those rare few enemies that DO use TP.
  *
+ * ----------------------------------------------------------------------------
+ *   Other Notes
+ *   - Don't use Show Over for the Show Enemy HP Gauges parameter if you're
+ *     also using Hime's Enemy Reinforcements.
  * ----------------------------------------------------------------------------
  *  Original Plugin By Vlue
  *
@@ -395,6 +399,38 @@ var statusXY = (parameters['Status Icon XY Offset'] || "0").split(", ").map(Numb
 //=============================================================================
 // Sleek Gauges
 //=============================================================================
+Window_Base.prototype.drawStaticGauge = function(x, y, width, rate, c1, c2, type) {
+	switch (type) {
+		case "hp":
+			barTypeLeft = hpBarTypeLeft || barTypeLeft;
+			barTypeRight = hpBarTypeRight || barTypeRight;
+			break;
+		case "mp":
+			barTypeLeft = mpBarTypeLeft || barTypeLeft;
+			barTypeRight = mpBarTypeRight || barTypeRight;
+			break;
+		case "tp":
+			barTypeLeft = tpBarTypeLeft || barTypeLeft;
+			barTypeRight = tpBarTypeRight || barTypeRight;
+			break;
+		case "exp":
+			barTypeLeft = expBarTypeLeft || barTypeLeft;
+			barTypeRight = expBarTypeRight || barTypeRight;
+			break;
+	}
+
+	var height = defaultHeight;
+	var fill_w = width * rate;
+	var gy = y + this.lineHeight() - height - 1;
+
+	this.contents.drawTrap(x, gy, width - 2, height, this.gaugeBackColor(), true);
+	this.contents.drawTrap(x, gy, fill_w, height, c1, c2, "atop");
+	this.contents.drawTrap(x, gy, width - 2, height, gaugeOutColor);
+
+	barTypeLeft = saveBarTypeLeft;
+	barTypeRight = saveBarTypeRight;
+}
+
 Window_Base.prototype.drawAnimatedGauge = function(x, y, width, rate, c1, c2, type) {
 	if (this._gauges == null) this._gauges = {};
 	var gkey = this.makeGaugeKey(x, y);
@@ -438,7 +474,7 @@ Window_MenuStatus.prototype.drawActorEXP = function(actor, x, y, width) {
 	var rate = (actor.currentExp() - actor.currentLevelExp()) / (actor.nextLevelExp() - actor.currentLevelExp());
 	if (actor.level === actor.maxLevel()) rate = 1;
 
-	this.drawExpGauge(x, y, width, rate, this.textColor(0), this.textColor(8));
+	this.drawStaticGauge(x, y, width, rate, this.textColor(0), this.textColor(8), "exp");
 
 	this.changeTextColor(this.systemColor());
 	this.drawText(TextManager.expA, x, y, 44);
@@ -446,33 +482,40 @@ Window_MenuStatus.prototype.drawActorEXP = function(actor, x, y, width) {
 	this.drawText((Math.floor(rate * 10000) / 100) + "%", x, y, width,"right");
 };
 
-Window_Base.prototype.drawExpGauge = function(x, y, width, rate, c1, c2) {
-	barTypeLeft = expBarTypeLeft || barTypeLeft;
-	barTypeRight = expBarTypeRight || barTypeRight;
-	
-	var height = defaultHeight;
-	var fill_w = width * rate;
-	var gy = y + this.lineHeight() - height - 1;
-
-	this.contents.drawTrap(x, gy, width - 2, height, this.gaugeBackColor(), true);
-	this.contents.drawTrap(x, gy, fill_w, height, c1, c2, "atop");
-	this.contents.drawTrap(x, gy, width - 2, height, gaugeOutColor);
-
-	barTypeLeft = saveBarTypeLeft;
-	barTypeRight = saveBarTypeRight;
+if (Imported.YEP_PartySystem) {
+Window_PartyDetail.prototype.drawActorHp = function(actor, x, y, width) {
+    width = width || 186;
+    var color1 = this.hpGaugeColor1();
+    var color2 = this.hpGaugeColor2();
+    this.drawStaticGauge(x, y, width, actor.hpRate(), color1, color2, "hp");
+    this.changeTextColor(this.systemColor());
+    this.drawText(TextManager.hpA, x, y, 44);
+    this.drawCurrentAndMax(actor.hp, actor.mhp, x, y, width, this.hpColor(actor), this.normalColor());
 };
+
+Window_PartyDetail.prototype.drawActorMp = function(actor, x, y, width) {
+    width = width || 186;
+    var color1 = this.mpGaugeColor1();
+    var color2 = this.mpGaugeColor2();
+    this.drawStaticGauge(x, y, width, actor.mpRate(), color1, color2, "mp");
+    this.changeTextColor(this.systemColor());
+    this.drawText(TextManager.mpA, x, y, 44);
+    this.drawCurrentAndMax(actor.mp, actor.mmp, x, y, width, this.mpColor(actor), this.normalColor());
+};
+
+}
 
 Window_MenuStatus.prototype.drawActorSimpleStatus = function(actor, x, y, width) {
 	if (statusXY.length === 2) {
-	    var lineHeight = this.lineHeight();
-	    var x2 = x + 180;
-	    var width2 = Math.min(200, width - 180 - this.textPadding());
-	    this.drawActorName(actor, x, y);
-	    this.drawActorLevel(actor, x, y + lineHeight * 1);
-	    this.drawActorIcons(actor, x + statusXY[0], y + lineHeight * 2 + statusXY[1]);
-	    this.drawActorClass(actor, x2, y);
-	    this.drawActorHp(actor, x2, y + lineHeight * 1, width2);
-	    this.drawActorMp(actor, x2, y + lineHeight * 2, width2);
+		var lineHeight = this.lineHeight();
+		var x2 = x + 180;
+		var width2 = Math.min(200, width - 180 - this.textPadding());
+		this.drawActorName(actor, x, y);
+		this.drawActorLevel(actor, x, y + lineHeight * 1);
+		this.drawActorIcons(actor, x + statusXY[0], y + lineHeight * 2 + statusXY[1]);
+		this.drawActorClass(actor, x2, y);
+		this.drawActorHp(actor, x2, y + lineHeight * 1, width2);
+		this.drawActorMp(actor, x2, y + lineHeight * 2, width2);
 	} else {
 		Window_Base.prototype.drawActorSimpleStatus.call(this, actor, x, y, width);
 	}
@@ -487,10 +530,10 @@ Window_MenuStatus.prototype.drawActorSimpleStatus = function(actor, x, y, width)
 // cede to Yanfly for level drawing
 if (!Imported.YEP_CoreEngine) {
 Window_MenuStatus.prototype.drawActorLevel = function(actor, x, y) {
-    this.changeTextColor(this.systemColor());
-    this.drawText(TextManager.levelA, x, y, 48);
-    this.resetTextColor();
-    this.drawText(actor.level, x + 130, y, 36, 'right');
+	this.changeTextColor(this.systemColor());
+	this.drawText(TextManager.levelA, x, y, 48);
+	this.resetTextColor();
+	this.drawText(actor.level, x + 130, y, 36, 'right');
 };
 }
 
@@ -628,6 +671,9 @@ Special_Gauge.prototype.drawGauge = function() {
 }
 
 Special_Gauge.prototype.fontSize = function() {
+	// edit to make different font sizes:
+	// for example: 
+	// if (this._window instanceof Window_BattleStatus) return 20;
 	return gaugeFontSize;
 }
 
@@ -781,11 +827,11 @@ Window_EnemyHPBars.prototype.constructor = Window_EnemyHPBars;
 Window_EnemyHPBars.prototype.initialize = function(sprites) {
 	Window_Base.prototype.initialize.call(this, 0, 0, Graphics.boxWidth, Graphics.boxHeight);
 	this.opacity = 0;
-	this._enemySprites = sprites.slice().reverse();
+	this._enemySprites = sprites;//.slice().reverse();
 };
 
 Window_EnemyHPBars.prototype.standardPadding = function() {
-   return 0;
+	return 0;
 };
 
 Window_EnemyHPBars.prototype.clearGauges = function(actor, x, y, width) {
@@ -797,6 +843,7 @@ Window_EnemyHPBars.prototype.clearGauges = function(actor, x, y, width) {
 
 Window_EnemyHPBars.prototype.drawActorHp = function(actor, x, y, width) {
 	this.drawAnimatedGauge(x, y, width, actor.hpRate(), this.hpGaugeColor1(), this.hpGaugeColor2(), "hp");
+	this._gauges[this.makeGaugeKey(x, y)].setTextVisibility(showEHPHP, showEHPText);
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp, textYOffset);
 }
 
@@ -812,7 +859,8 @@ Window_EnemyHPBars.prototype.drawActorTp = function(actor, x, y, width) {
 
 Window_EnemyHPBars.prototype.drawEnemyGauges = function(actor, x, y, width) {
 	if (actor.enemy().meta.HideEnemyHPBar) return;
-	if (this._gauges && this._gauges[this.makeGaugeKey(x, y)] && this._gauges[this.makeGaugeKey(x, y)]._curVal === 0) {
+	if (this._gauges && this._gauges[this.makeGaugeKey(x, y)]
+		&& ((this._gauges[this.makeGaugeKey(x, y)]._curVal === 0 && actor.hp === 0) || actor.isHidden())) {
 		this.clearGauges(actor, x, y, width);
 		return;
 	}
@@ -820,7 +868,6 @@ Window_EnemyHPBars.prototype.drawEnemyGauges = function(actor, x, y, width) {
 	barTypeLeft = actor.enemy().meta.BarTypeLeft || hpBarTypeLeft || barTypeLeft;
 	barTypeRight = actor.enemy().meta.BarTypeRight || hpBarTypeRight || barTypeRight;
 	this.drawActorHp(actor, x, y, width);
-	this._gauges[this.makeGaugeKey(x, y)].setTextVisibility(showEHPHP, showEHPText);
 	barTypeLeft = saveBarTypeLeft;
 	barTypeRight = saveBarTypeRight;
 
@@ -851,14 +898,17 @@ Window_EnemyHPBars.prototype.drawTinyGauge = function(x, y, width, rate, c1, c2,
 Window_EnemyHPBars.prototype.update = function() {
 	Window_Base.prototype.update.call(this);
 	var width = EHPbarWidth, x, y;
-	for (var i = 0; i < $gameTroop._enemies.length; i++) {
+	var enemies = $gameTroop.members();
+
+	for (var i = 0; i < enemies.length; i++) {
+		if (this._enemySprites[i] === undefined) continue;
 		if (!this._enemySprites[i].height || !this._enemySprites[i].width) continue;
 
-		x = $gameTroop._enemies[i].screenX() - (width + this.textPadding())/2 + EHPXOffset + (parseInt($gameTroop._enemies[i].enemy().meta.HPBarXOffset) || 0);
-		y = $gameTroop._enemies[i].screenY() - this.lineHeight() + EHPYOffset + (parseInt($gameTroop._enemies[i].enemy().meta.HPBarYOffset) || 0);
+		x = enemies[i].screenX() - (width + this.textPadding())/2 + EHPXOffset + (parseInt(enemies[i].enemy().meta.HPBarXOffset) || 0);
+		y = enemies[i].screenY() - this.lineHeight() + EHPYOffset + (parseInt(enemies[i].enemy().meta.HPBarYOffset) || 0);
 		if (showUpTop) y -= this._enemySprites[i].height * EHPYMultiplier;
+		this.drawEnemyGauges(enemies[i], x, y, width);
 
-		this.drawEnemyGauges($gameTroop._enemies[i], x, y, width);
 	}
 }
 
@@ -890,7 +940,6 @@ Scene_Battle.prototype.createSpriteset = function() {
 	this._enemyHPBarWindow = new Window_EnemyHPBars(this._spriteset._enemySprites);
 	this.addChild(this._enemyHPBarWindow);
 };
-
 } else {
 var alias_Spriteset_Battle_createEnemies = Spriteset_Battle.prototype.createEnemies;
 Spriteset_Battle.prototype.createEnemies = function() {
