@@ -5,8 +5,8 @@
  *
  * @help 
  * ----------------------------------------------------------------------------
- *   Pretty Sleek Gauges Yanfly Absorption Barrier Patch v1.0b
- *     For Pretty Sleek Gauges versions v1.03b and up
+ *   Pretty Sleek Gauges Yanfly Absorption Barrier Patch v1.0c
+ *     For Pretty Sleek Gauges versions v1.03d and up
  * ----------------------------------------------------------------------------
  *   Free to use in any project with credit to:
  *     superMasterSword
@@ -91,8 +91,8 @@ Special_Gauge.prototype.update = function() {
 		if (Math.abs(this._curAbsp - this._maxAbsp) < this._abspSpd)
 			this._curAbsp = this._maxAbsp;
 		
-		if (!animatedNumbers || this.shouldAnimate()) this._curAbsp = this._maxAbsp;
-		if (!animatedGauges || this.shouldAnimate()) this._curAbspRate = this._maxAbspRate;
+		if (!animatedNumbers || this.shouldntAnimate()) this._curAbsp = this._maxAbsp;
+		if (!animatedGauges || this.shouldntAnimate()) this._curAbspRate = this._maxAbspRate;
 	}
 	
 	this.refresh();

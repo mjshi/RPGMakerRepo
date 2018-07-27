@@ -205,7 +205,7 @@ Imported.PrettySleekGauges = true;
  * @type boolean
  * @default true
  *
- * @param Animated Gauge
+ * @param Animated Gauges
  * @desc Whether or not the gauge is animated
  * (true/false)
  * @type boolean
@@ -274,7 +274,7 @@ Imported.PrettySleekGauges = true;
  * @param
  * @help 
  * ----------------------------------------------------------------------------
- *   Pretty Sleek Gauges v1.03c
+ *   Pretty Sleek Gauges v1.03d
  * ----------------------------------------------------------------------------
  *   Free to use in any project with credit to:
  *     Vlue             (original plugin)
@@ -503,6 +503,17 @@ Window_PartyDetail.prototype.drawActorMp = function(actor, x, y, width) {
     this.drawCurrentAndMax(actor.mp, actor.mmp, x, y, width, this.mpColor(actor), this.normalColor());
 };
 
+Window_PartyDetail.prototype.drawActorTp = function(actor, x, y, width) {
+    width = width || 96;
+    var color1 = this.tpGaugeColor1();
+    var color2 = this.tpGaugeColor2();
+    this.drawStaticGauge(x, y, width, actor.mpRate(), color1, color2, "tp");
+    this.changeTextColor(this.systemColor());
+    this.drawText(TextManager.tpA, x, y, 44);
+    this.changeTextColor(this.tpColor(actor));
+    this.drawText(actor.tp, x + width - 64, y, 64, 'right');
+};
+
 }
 
 Window_MenuStatus.prototype.drawActorSimpleStatus = function(actor, x, y, width) {
@@ -593,13 +604,13 @@ Special_Gauge.prototype.update = function() {
 	if (Math.abs(this._curRate - this._maxRate) < this._speedRate) this._curRate = this._maxRate;
 	if (Math.abs(this._curVal - this._setVal) < this._speed) this._curVal = this._setVal;
 
-	if (!animatedNumbers || this.shouldAnimate()) this._curVal = this._setVal;
-	if (!animatedGauges || this.shouldAnimate()) this._curRate = this._maxRate;
+	if (!animatedNumbers || this.shouldntAnimate()) this._curVal = this._setVal;
+	if (!animatedGauges || this.shouldntAnimate()) this._curRate = this._maxRate;
 	
 	this.refresh();
 }
 
-Special_Gauge.prototype.shouldAnimate = function() {
+Special_Gauge.prototype.shouldntAnimate = function() {
 	if (stopAnimatingOnActorTarget && this._window instanceof Window_BattleActor) return true;
 	if (stopAnimatingOnActorStatus && this._window instanceof Window_Status) return true;
 	if (stopAnimatingOnActorMenuStatus && this._window instanceof Window_MenuStatus) return true;
@@ -607,21 +618,22 @@ Special_Gauge.prototype.shouldAnimate = function() {
 };
 
 Special_Gauge.prototype.refresh = function() {
+	var gy = this._y + this._window.lineHeight() - 2;
 	if (this._vocab) {
-		this._window.contents.clearRect(this._x-1, this._y, this._width+2, this._window.lineHeight());		
+		gy -= this.fontSize();
+		this._window.contents.clearRect(this._x-1, gy, this._width + 2, this.fontSize() + 2);		
 	} else {
-		var gy = this._y + this._window.lineHeight() - this._height - 1;
-		this._window.contents.clearRect(this._x, gy, this._width, this._height);
+		gy -= this._height;
+		this._window.contents.clearRect(this._x, gy, this._width + 2, this._height);
 	}
 	this.drawGauge();
 	this.drawText();
 }
 
 Special_Gauge.prototype.setRate = function(rate) {
-	if (rate != this._maxRate) {
-		this._maxRate = rate;
-		this._speedRate = Math.abs(this._curRate - this._maxRate) / 60;
-	}
+	if (rate === this._maxRate) return;
+	this._maxRate = rate;
+	this._speedRate = Math.abs(this._curRate - this._maxRate) / 60;
 }
 
 Special_Gauge.prototype.setExtra = function(text, val, max, yOffset) {
@@ -859,11 +871,8 @@ Window_EnemyHPBars.prototype.drawActorTp = function(actor, x, y, width) {
 
 Window_EnemyHPBars.prototype.drawEnemyGauges = function(actor, x, y, width) {
 	if (actor.enemy().meta.HideEnemyHPBar) return;
-	if (this._gauges && this._gauges[this.makeGaugeKey(x, y)]
-		&& ((this._gauges[this.makeGaugeKey(x, y)]._curVal === 0 && actor.hp === 0) || actor.isHidden())) {
-		this.clearGauges(actor, x, y, width);
-		return;
-	}
+	if (actor.isHidden()) return;
+	if (this._gauges && this._gauges[this.makeGaugeKey(x, y)] && ((this._gauges[this.makeGaugeKey(x, y)]._curVal === 0 || this._gauges[this.makeGaugeKey(x, y)]._curRate === 0) && actor.hp === 0)) return;
 
 	barTypeLeft = actor.enemy().meta.BarTypeLeft || hpBarTypeLeft || barTypeLeft;
 	barTypeRight = actor.enemy().meta.BarTypeRight || hpBarTypeRight || barTypeRight;
@@ -900,6 +909,7 @@ Window_EnemyHPBars.prototype.update = function() {
 	var width = EHPbarWidth, x, y;
 	var enemies = $gameTroop.members();
 
+	this.contents.clearRect(0, 0, Graphics.boxWidth, Graphics.boxHeight);
 	for (var i = 0; i < enemies.length; i++) {
 		if (this._enemySprites[i] === undefined) continue;
 		if (!this._enemySprites[i].height || !this._enemySprites[i].width) continue;
@@ -910,7 +920,7 @@ Window_EnemyHPBars.prototype.update = function() {
 		this.drawEnemyGauges(enemies[i], x, y, width);
 
 	}
-}
+}	
 
 Line_Gauge.prototype = Object.create(Special_Gauge.prototype);
 Line_Gauge.prototype.constructor = Line_Gauge;

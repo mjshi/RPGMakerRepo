@@ -51,21 +51,18 @@ Window_BattleStatus.prototype.drawActorHp = function(actor, x, y, width) {
 	width = width || 186;
 	this.drawAnimatedGauge(x, y, width, actor.hpRate(), this.hpGaugeColor1(), this.hpGaugeColor2(), criticalHP);
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.hpA, actor.hp, actor.mhp, HeightOffset);
-	this._gauges[this.makeGaugeKey(x, y)].update();
 }
 
 Window_BattleStatus.prototype.drawActorMp = function(actor, x, y, width) {
 	width = width || 186;
 	this.drawAnimatedGauge(x, y, width, actor.mpRate(), this.mpGaugeColor1(), this.mpGaugeColor2(), criticalMP);
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.mpA, actor.mp, actor.mmp, HeightOffset);
-	this._gauges[this.makeGaugeKey(x, y)].update();
 }
 
 Window_BattleStatus.prototype.drawActorTp = function(actor, x, y, width) {
 	width = width || 186;
 	this.drawAnimatedGauge(x, y, width, actor.tpRate(), this.tpGaugeColor1(), this.tpGaugeColor2(), criticalTP);
 	this._gauges[this.makeGaugeKey(x, y)].setExtra(TextManager.tpA, actor.tp, 100, HeightOffset);
-	this._gauges[this.makeGaugeKey(x, y)].update();
 }
 
 var alias_Special_Gauge_doneUpdating = Special_Gauge.prototype.doneUpdating;
