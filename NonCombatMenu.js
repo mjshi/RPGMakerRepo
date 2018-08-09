@@ -7,21 +7,52 @@ Imported.NonCombatMenu = true;
 
 var NCMenu = NCMenu || {};
 
+/*~struct~MenuItem:
+ * @param Name
+ * @type text
+ * @desc The text that shows up on the menu.
+ *
+ * @param Keyword
+ * @type text
+ * @desc Choose from: item equip status formation save load options toTitle cancel quest ce= cmd= sc=
+ *
+ * @param Enable Condition
+ * @type text
+ * @desc Leave blank to always enable. Evaluated like a script: $gameSwitches.value(ID), $gameVariables.value(ID) > 10
+ *
+ * @param Show Condition
+ * @type text
+ * @desc Leave blank to always show. Evaluated like a script: $gameSwitches.value(ID), $gameVariables.value(ID) > 10
+ *
+ * @param Icon
+ * @type number
+ * @min -1
+ * @desc Leave blank or set to -1 for no icon.
+ *
+ */
+
 /*:
  * @plugindesc Fully customizable menu geared toward less battle-oriented games.
  * @author mjshi
  *
  * @param ---Main Menu---
- * @desc  
- * @default 
+
+ * @param Menu List
+ * @type struct<MenuItem>[]
+ * @desc For MV 1.5+ only, delete everything in here and use Menu Order instead otherwise. See help for more details.
+ * @default ["{\"Name\":\"Item\",\"Keyword\":\"item\",\"Enable Condition\":\"\",\"Show Condition\":\"\",\"Icon\":\"\"}","{\"Name\":\"Status\",\"Keyword\":\"status\",\"Enable Condition\":\"\",\"Show Condition\":\"\",\"Icon\":\"\"}","{\"Name\":\"Save\",\"Keyword\":\"save\",\"Enable Condition\":\"$gameSystem.isSaveEnabled()\",\"Show Condition\":\"\",\"Icon\":\"\"}","{\"Name\":\"Quit\",\"Keyword\":\"toTitle\",\"Enable Condition\":\"\",\"Show Condition\":\"\",\"Icon\":\"\"}"]
+ *
+ * @param ** Legacy Parameters **
  *
  * @param Menu Order
- * @desc "Name: Keyword" Keywords: item equip status formation save load options toTitle cancel quest CEvent_id cmd= (see help)
+ * @desc Disabled if Menu List is not blank. Condition is optional. Format: "Name: Keyword(: condition)", see help for keywords.
  * @default Item: item, Status: status, Save: save, Quit: toTitle
  *
  * @param Menu Icons
- * @desc This must be in the same order as the above! Use -1 for no icon.
+ * @desc Disabled if Menu List is not blank. This must be in the same order as Menu Order! Use -1 for no icon.
  * @default -1, -1, -1, -1
+ *
+ * @param ** End Legacy Params **
  *
  * @param Text Alignment
  * @desc Where to align the text? (left/right/center)
@@ -47,9 +78,7 @@ var NCMenu = NCMenu || {};
  * @desc Ranges from 0 to 255. 0 for opaque, 255 for transparent.
  * @default 128
  *
- * @param ---Item Menu---
- * @desc 
- * @default 
+ * @param ---Item Menu--- 
  *
  * @param Number of Tabs
  * @desc How many tabs are you showing? (minimum # of tabs is the # of "yes"es in this section)
@@ -76,8 +105,6 @@ var NCMenu = NCMenu || {};
  * @default 0
  *
  * @param ---Gold Window---
- * @desc  
- * @default 
  *
  * @param Show Gold Window
  * @desc yes/no: Should the gold window be shown in the item menu? 
@@ -92,8 +119,6 @@ var NCMenu = NCMenu || {};
  * @default 240
  *
  * @param ---Backgrounds---
- * @desc 
- * @default
  *
  * @param Item Screen BG
  * @desc Background of the items screen. If undefined, is black. PNG file must be in /img/pictures.
@@ -121,19 +146,21 @@ var NCMenu = NCMenu || {};
  *
  * @help 
  * ----------------------------------------------------------------------------
- *   Non-Combat Menu v1.04 by mjshi
+ *   Non-Combat Menu v1.05 by mjshi
  *   Free for both commercial and non-commercial use, with credit.
  * ----------------------------------------------------------------------------
  *                               Menu Keywords
  * ----------------------------------------------------------------------------
- *   item       Items screen         status     Status screen
- *   equip      Equip screen         formation  Party Formation screen
- *   save       Save screen          load       Load screen
- *   options    Options screen       toTitle    Quits to title
- *   cancel     Returns to map       quest      Quests screen (quests plugin
- *   CEvent_id  Calls Common Event                             required)
- *              Ex: CEvent_1 calls   cmd=       Calls plugin command
- *              Common Event 1                  Read more below
+ *   item     Items screen         status     Status screen
+ *   equip    Equip screen         formation  Party Formation screen
+ *   save     Save screen          load       Load screen
+ *   options  Options screen       toTitle    Quits to title
+ *   cancel   Returns to map       quest      Quests screen (req. quest plugin)
+ *
+ *   ce=  Calls Common Event. Ex: ce=1 calls Common Event 1
+ *   cmd= Calls plugin command, more details below.
+ *   sc=  Custom script call. Ex: SceneManager.push(Scene_Load) calls up 
+ *        the load screen.
  * ----------------------------------------------------------------------------
  *   Special thanks to Valrix on RMN for first creating the PluginCMD addon.
  *   Due to it needing constant updates (as it overwrites core functionality)
@@ -157,7 +184,7 @@ var NCMenu = NCMenu || {};
  *
  * > Update v1.02
  * - Added support for calling common events from the menu
- * > 1.02a - Fixed CEvent_id to actually support multiple common events
+ * > 1.02a - Fixed CEvent_ID to actually support multiple common events
  *
  * > Update v1.03
  * - Absorbed the PluginCMD addon. Read above to see how to use it.
@@ -165,17 +192,26 @@ var NCMenu = NCMenu || {};
  * > Update v1.04
  * - Added support for icons and text alignment
  *
+ * > Update v1.05
+ * - Changed how menu lists are handled, added support for enable/disable
+ *   and show/hide conditions for each individual menu item
+ * - Shortened CEvent_ID to ce= (don't worry, CEvent_ID is still recognized)
+ * - Added command remembering, no more arrowing down from the first thing
+ *   every time!
+ * - Added sc= for custom script calls (you can now push in custom scenes!)
+ *
  * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
  *   try my best to help you!
  *
  */
 
 NCMenu.Parameters = PluginManager.parameters('NonCombatMenu');
+
+/** Legacy Stuff **/
 NCMenu.menuList = (String(NCMenu.Parameters['Menu Order'])).split(", ");
 for (var i = 0; i < NCMenu.menuList.length; i++) {
-  NCMenu.menuList[i] = NCMenu.menuList[i].split(": ");
+	NCMenu.menuList[i] = NCMenu.menuList[i].split(": ");
 }
-
 //prevent people accidentally forgetting stuff
 NCMenu.menuIcons = (String(NCMenu.Parameters['Menu Icons'])).split(", ");
 for (var i = 0; i < NCMenu.menuList.length; i++) {
@@ -185,6 +221,19 @@ for (var i = 0; i < NCMenu.menuList.length; i++) {
         NCMenu.menuIcons[i] = -1;
     }
 }
+/** End Legacy Stuff **/
+
+//New Menu List
+if (String(NCMenu.Parameters['Menu List']).length > 0) {
+	NCMenu.menuList = JSON.parse(NCMenu.Parameters['Menu List']);
+	NCMenu.menuIcons = [];
+	for (var i = 0; i < NCMenu.menuList.length; i++) {
+		var fields = JSON.parse(NCMenu.menuList[i]);
+		NCMenu.menuList[i] = [fields["Name"], fields["Keyword"], fields["Enable Condition"], fields["Show Condition"]];
+		NCMenu.menuIcons.push(fields["Icon"].length !== 0 ? parseInt(fields["Icon"]) : -1);
+	}
+}
+
 NCMenu.textOffset = Number(NCMenu.Parameters['Text Offset']);
 NCMenu.textAlign = String(NCMenu.Parameters['Text Alignment']);
 NCMenu.offsetIconOnly = (String(NCMenu.Parameters['Offset Only Icons']) == "yes");
@@ -255,16 +304,34 @@ Scene_NCMenu.prototype.createCommandWindow = function() {
 
     for (var i = 0; i < NCMenu.menuList.length; i++) {
       method = NCMenu.menuList[i][1];
-      if (method == 'cancel') {continue};
-      if (method.startsWith("cmd=")) {this._commandWindow.setHandler(method, this.callPluginCommand.bind(this, method.slice(4)))
+
+      if (method === 'cancel') continue;
+      // probably not necessary, keep this just in case. Scenes seem to be OK with setting nonexistent handlers
+      // if (NCMenu.menuList[i][3] && !eval(NCMenu.menuList[i][3])) continue;
+
+      if (method.startsWith("cmd=")) {
+      	this._commandWindow.setHandler(method, this.callPluginCommand.bind(this, method.slice(4)));
+
       } else if (method.startsWith("CEvent_")) {
-      	var event_id = parseInt(method.slice(7));
-      	this._commandWindow.setHandler(method, this.callCommonEvent.bind(this, event_id))
-      } else {this._commandWindow.setHandler(method, eval("this.command" + method.charAt(0).toUpperCase() + method.slice(1) + ".bind(this)"))}
+      	this._commandWindow.setHandler(method, this.callCommonEvent.bind(this, parseInt(method.slice(7))));
+
+      } else if (method.startsWith("ce=")) {
+      	this._commandWindow.setHandler(method, this.callCommonEvent.bind(this, parseInt(method.slice(3))));
+
+      } else if (method.startsWith("sc=")) {
+      	this._commandWindow.setHandler(method, eval("this.customScriptCommand.bind(this, '" + method.slice(3) + "')"));
+
+      } else {
+      	this._commandWindow.setHandler(method, eval("this.command" + method.charAt(0).toUpperCase() + method.slice(1) + ".bind(this)"));
+      }
     }
 
     this._commandWindow.setHandler('cancel', this.popScene.bind(this));
     this.addWindow(this._commandWindow);
+};
+
+Scene_NCMenu.prototype.customScriptCommand = function(script) {
+	eval(script);
 };
 
 Scene_NCMenu.prototype.createInvisibleFormationWindow = function() {
@@ -468,6 +535,7 @@ Window_NCMenu.prototype.initialize = function() {
     this.updatePlacement();
     this.openness = 0;
     this.open();
+    this.selectLast();
 };
 
 Window_NCMenu.prototype.windowWidth = function() {
@@ -481,7 +549,8 @@ Window_NCMenu.prototype.updatePlacement = function() {
 
 Window_NCMenu.prototype.makeCommandList = function() {
     for (var i = 0; i < NCMenu.menuList.length; i++) {
-        this.addCommand(NCMenu.menuList[i][0], NCMenu.menuList[i][1])
+    	if (NCMenu.menuList[i][3] !== "" && !eval(NCMenu.menuList[i][3])) continue;
+        this.addCommand(NCMenu.menuList[i][0], NCMenu.menuList[i][1], NCMenu.menuList[i][2] !== "" ? eval(NCMenu.menuList[i][2]) : true);
     }
 };
 
@@ -498,6 +567,15 @@ Window_NCMenu.prototype.drawItem = function(index) {
         this.drawIcon(NCMenu.menuIcons[index], rect.x, rect.y + 2);
     }
     this.drawText(this.commandName(index), rect.x + offset, rect.y, rect.width - offset, NCMenu.textAlign);
+};
+
+Window_NCMenu.prototype.processOk = function() {
+    Window_NCMenu._lastCommandSymbol = this.currentSymbol();
+    Window_Command.prototype.processOk.call(this);
+};
+
+Window_NCMenu.prototype.selectLast = function() {
+    this.selectSymbol(Window_NCMenu._lastCommandSymbol);
 };
 
 //=============================================================================
