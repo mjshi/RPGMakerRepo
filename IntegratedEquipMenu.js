@@ -9,6 +9,10 @@ Imported.IntegratedEquipMenu = true;
 * @plugindesc Equip items through the Weapons/Armors tabs in the item menu!
 * @author mjshi
 *
+* @param Max Columns
+* @desc Maximum number of party members to show on one page.
+* @default 4
+*
 * @param Show Names
 * @desc (true/false) Show character names?
 * @type boolean
@@ -82,6 +86,7 @@ var params = PluginManager.parameters('IntegratedEquipMenu');
 var showName = params["Show Names"] === "true";
 var persistentMini = params["Always Concise Format"] === "true";
 var noneText = params["None Text"];
+var maxNumCols = parseInt(params["Max Columns"]);
 
 var yBuffer = parseInt(params["Y Buffer"]);
 var paramLeftBuffer = parseInt(params["Param Left Buffer"]) || 0;
@@ -162,7 +167,7 @@ Window_IntegratedEquipMenu.prototype.windowWidth = function() {
 };
 
 Window_IntegratedEquipMenu.prototype.maxCols = function() {
-	return Math.min(4, this.maxItems());
+	return Math.min(maxNumCols, this.maxItems());
 };
 
 Window_IntegratedEquipMenu.prototype.makeCommandList = function() {
