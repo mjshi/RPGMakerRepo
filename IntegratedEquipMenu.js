@@ -11,6 +11,7 @@ Imported.IntegratedEquipMenu = true;
 *
 * @param Max Columns
 * @desc Maximum number of party members to show on one page.
+* @type number
 * @default 4
 *
 * @param Show Names
@@ -32,19 +33,19 @@ Imported.IntegratedEquipMenu = true;
 * @param Param Buffer
 * @desc How much to buffer between the parameters and their values in concise format.
 * @parent --- Buffers ---
-* @number
+* @type number
 * @default 20
 *
 * @param Param Left Buffer
 * @desc How much to buffer to the left of the parameters in concise format.
 * @parent --- Buffers ---
-* @number
+* @type number
 * @default 0
 *
 * @param Y Buffer
 * @desc How much to buffer from the top, in pixels.
 * @parent --- Buffers ---
-* @number
+* @type number
 * @default 0
 *
 * @param Between Buffer
@@ -56,7 +57,7 @@ Imported.IntegratedEquipMenu = true;
 * @param After Buffer
 * @desc How much to buffer between sprite and the parameters.
 * @parent --- Buffers ---
-* @number
+* @type number
 * @default 18
 *
 * @param Single Member Buffer
