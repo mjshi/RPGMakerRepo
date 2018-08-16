@@ -63,7 +63,7 @@ Imported.IntegratedEquipMenu = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   Integrated Equip Menu v1.0 by mjshi
+*   Integrated Equip Menu v1.0a by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Plug & Play. No options and little to no configuration needed!
@@ -245,7 +245,7 @@ Window_IntegratedEquipMenu.prototype.drawAllItems = function() {
             this.drawItem(index);
         }
     }
-    
+
 	if (this._format === -1) {
 		this.changeTextColor(this.systemColor());
 		for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), paramLeftBuffer, this.lineHeight() * i + (yBuffer + betweenBuffer + afterBuffer));
