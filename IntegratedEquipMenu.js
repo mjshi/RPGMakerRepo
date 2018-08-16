@@ -223,7 +223,7 @@ Window_IntegratedEquipMenu.prototype.drawAllItems = function() {
 	Window_HorzCommand.prototype.drawAllItems.call(this);
 	if (this._format === -1) {
 		this.changeTextColor(this.systemColor());
-		for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), 0, this.lineHeight() * i + this.lineHeight()* (betweenBuffer + afterBuffer));
+		for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), 0, this.lineHeight() * i + (betweenBuffer + afterBuffer));
 	}
 };
 
