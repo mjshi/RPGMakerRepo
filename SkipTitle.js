@@ -16,16 +16,20 @@
 */
 
 (function () {
-var alias_scene_boot_start = Scene_Boot.prototype.start;
 Scene_Boot.prototype.start = function() {
-	if (Utils.isOptionValid('test')) {
-		Scene_Base.prototype.start.call(this);
-		SoundManager.preloadImportantSounds();
-		this.checkPlayerLocation();
-		DataManager.setupNewGame();
+    Scene_Base.prototype.start.call(this);
+    SoundManager.preloadImportantSounds();
+    if (DataManager.isBattleTest()) {
+        DataManager.setupBattleTest();
+        SceneManager.goto(Scene_Battle);
+    } else if (DataManager.isEventTest()) {
+        DataManager.setupEventTest();
+        SceneManager.goto(Scene_Map);
+    } else {
+        this.checkPlayerLocation();
+        DataManager.setupNewGame();
 		SceneManager.goto(Scene_Map);
-	} else {
-		alias_scene_boot_start.call(this);
-	}
-}
+    }
+    this.updateDocumentTitle();
+};
 })();
