@@ -19,6 +19,11 @@ Imported.IntegratedEquipMenu = true;
 * @type boolean
 * @default true
 *
+* @param Show Horizontal
+* @desc (true/false) Alternate display mode.
+* @type boolean
+* @default false
+*
 * @param Always Concise Format
 * @desc (true/false) Use consistent concise formatting for equipping or adapt based on party size?
 * @type boolean
@@ -88,6 +93,7 @@ var showName = params["Show Names"] === "true";
 var persistentMini = params["Always Concise Format"] === "true";
 var noneText = params["None Text"];
 var maxNumCols = parseInt(params["Max Columns"]);
+var showHorizontal = params["Show Horizontal"] === "true";
 
 var yBuffer = parseInt(params["Y Buffer"]);
 var paramLeftBuffer = parseInt(params["Param Left Buffer"]) || 0;
@@ -172,6 +178,7 @@ Window_IntegratedEquipMenu.prototype.numVisibleRows = function() {
 };
 
 Window_IntegratedEquipMenu.prototype.maxCols = function() {
+	if (showHorizontal) return 1;
 	return Math.min(maxNumCols, this.maxItems());
 };
 
@@ -181,7 +188,11 @@ Window_IntegratedEquipMenu.prototype.makeCommandList = function() {
 	var actor;
 	for (var i = 0; i < $gameParty.battleMembers().length; i++) {
 		actor = $gameParty.battleMembers()[i];
-		if (actor.canEquip(this.equip()) && actor.equipSlots().contains(this.getSlotID())) this.addCommand('' + i, 'equip');
+		if (Imported.YEP_EquipCore) {
+			if (actor.canEquip(this.equip()) && actor.equipSlots().contains(this.getSlotID())) this.addCommand('' + i, 'equip');
+			continue;
+		}
+		if (actor.canEquip(this.equip())) this.addCommand('' + i, 'equip');
 	}
 
 	if (this.maxItems() === 0) this.addCommand('None', 'none');
