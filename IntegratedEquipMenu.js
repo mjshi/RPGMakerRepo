@@ -142,11 +142,11 @@ Scene_Item.prototype.onItemOk = function() {
 function Window_IntegratedEquipMenu() {
 	this.initialize.apply(this, arguments);
 }
-Window_IntegratedEquipMenu.prototype = Object.create(Window_HorzCommand.prototype);
+Window_IntegratedEquipMenu.prototype = Object.create(Window_Command.prototype);
 Window_IntegratedEquipMenu.prototype.constructor = Window_IntegratedEquipMenu;
 
 Window_IntegratedEquipMenu.prototype.initialize = function(x, y) {
-	Window_HorzCommand.prototype.initialize.call(this, x, y);
+	Window_Command.prototype.initialize.call(this, x, y);
 	this.hide();
 	this.deactivate();
 	this._equip = null;
@@ -167,6 +167,10 @@ Window_IntegratedEquipMenu.prototype.windowWidth = function() {
 	return Graphics.boxWidth / 2;
 };
 
+Window_IntegratedEquipMenu.prototype.numVisibleRows = function() {
+    return 1;
+};
+
 Window_IntegratedEquipMenu.prototype.maxCols = function() {
 	return Math.min(maxNumCols, this.maxItems());
 };
@@ -177,7 +181,7 @@ Window_IntegratedEquipMenu.prototype.makeCommandList = function() {
 	var actor;
 	for (var i = 0; i < $gameParty.battleMembers().length; i++) {
 		actor = $gameParty.battleMembers()[i];
-		if (actor.canEquip(this.equip())) this.addCommand('' + i, 'equip');
+		if (actor.canEquip(this.equip()) && actor.equipSlots().contains(this.getSlotID())) this.addCommand('' + i, 'equip');
 	}
 
 	if (this.maxItems() === 0) this.addCommand('None', 'none');
@@ -229,7 +233,7 @@ Window_IntegratedEquipMenu.prototype.itemRect = function(index) {
 	    return rect;
 
 	} else {
-		return Window_HorzCommand.prototype.itemRect.call(this, index);
+		return Window_Command.prototype.itemRect.call(this, index);
 	}
 };
 
