@@ -31,6 +31,12 @@ Imported.IntegratedEquipMenu = true;
 * @number
 * @default 20
 *
+* @param Param Left Buffer
+* @desc How much to buffer to the left of the parameters in concise format.
+* @parent --- Buffers ---
+* @number
+* @default 0
+*
 * @param Y Buffer
 * @desc How much to buffer from the top, in pixels.
 * @parent --- Buffers ---
@@ -75,13 +81,14 @@ Imported.IntegratedEquipMenu = true;
 var params = PluginManager.parameters('IntegratedEquipMenu');
 var showName = params["Show Names"] === "true";
 var persistentMini = params["Always Concise Format"] === "true";
+var noneText = params["None Text"];
+
 var yBuffer = parseInt(params["Y Buffer"]);
+var paramLeftBuffer = parseInt(params["Param Left Buffer"]) || 0;
 var paramBuffer = parseInt(params["Param Buffer"]);
 var betweenBuffer = parseInt(params["Between Buffer"]);
 var afterBuffer = parseInt(params["After Buffer"]);
 var oneBuffer = parseFloat(params["Single Member Buffer"]);
-var noneText = params["None Text"];
-
 
 //-----------------------------------------------------------------------------
 // Scene_Item
@@ -129,7 +136,6 @@ Scene_Item.prototype.onItemOk = function() {
 function Window_IntegratedEquipMenu() {
 	this.initialize.apply(this, arguments);
 }
-
 Window_IntegratedEquipMenu.prototype = Object.create(Window_HorzCommand.prototype);
 Window_IntegratedEquipMenu.prototype.constructor = Window_IntegratedEquipMenu;
 
@@ -138,6 +144,13 @@ Window_IntegratedEquipMenu.prototype.initialize = function(x, y) {
 	this.hide();
 	this.deactivate();
 	this._equip = null;
+};
+
+Window_IntegratedEquipMenu.prototype.cursorUp = function(wrap) {
+    this.cursorLeft(wrap);
+};
+Window_IntegratedEquipMenu.prototype.cursorDown = function(wrap) {
+    this.cursorRight(wrap);
 };
 
 Window_IntegratedEquipMenu.prototype.itemHeight = function() {
@@ -187,8 +200,8 @@ Window_IntegratedEquipMenu.prototype.determineFormat = function() {
 			newValue = tempActor.param(i);
 			diffValue = newValue - actor.param(i);
 
-			if (this.textWidth(TextManager.param(i) + " " + newValue + "(+" + Math.abs(diffValue) + ")") > width) canLongFormat = false;
-			if (this.textWidth(TextManager.param(i) + " " + newValue) > width) return -1;
+			if (this.textWidth(TextManager.param(i) + 5 + newValue + "(+" + Math.abs(diffValue) + ")") > width) canLongFormat = false;
+			if (this.textWidth(TextManager.param(i) + 5 + newValue) > width) return -1;
 		}
 	}
 	return canLongFormat ? 1 : 0;
@@ -218,12 +231,24 @@ Window_IntegratedEquipMenu.prototype.spacing = function() {
     return 5;
 };
 
-Window_IntegratedEquipMenu.prototype.drawAllItems = function() {
+Window_IntegratedEquipMenu.prototype.updateFormatting = function() {
 	this._format = this.determineFormat();
-	Window_HorzCommand.prototype.drawAllItems.call(this);
+};
+
+Window_IntegratedEquipMenu.prototype.drawAllItems = function() {
+	this.updateFormatting();
+
+    var topIndex = this.topIndex();
+    for (var i = 0; i < this.maxPageItems(); i++) {
+        var index = topIndex + i;
+        if (index < this.maxItems()) {
+            this.drawItem(index);
+        }
+    }
+    
 	if (this._format === -1) {
 		this.changeTextColor(this.systemColor());
-		for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), 0, this.lineHeight() * i + (yBuffer + betweenBuffer + afterBuffer));
+		for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), paramLeftBuffer, this.lineHeight() * i + (yBuffer + betweenBuffer + afterBuffer));
 	}
 };
 
@@ -284,6 +309,7 @@ Window_IntegratedEquipMenu.prototype.setItem = function(item) {
 	this._equip = item;
 	this.select(0);
 	this.refresh();
+	this.refresh();
 };
 
 Window_IntegratedEquipMenu.prototype.getSlotID = function() {
@@ -297,7 +323,6 @@ var alias_window_itemlist_isenabled = Window_ItemList.prototype.isEnabled;
 Window_ItemList.prototype.isEnabled = function(item) {
 	return	alias_window_itemlist_isenabled.call(this, item) || (SceneManager._scene instanceof Scene_Item && (DataManager.isWeapon(item) || DataManager.isArmor(item)));
 };
-
 
 /* END */
 })();
