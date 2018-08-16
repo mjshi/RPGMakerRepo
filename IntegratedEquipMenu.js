@@ -9,6 +9,10 @@ Imported.IntegratedEquipMenu = true;
 * @plugindesc Equip items through the Weapons/Armors tabs in the item menu!
 * @author mjshi
 *
+* @param Window Width
+* @desc Width of the window.
+* @default Graphics.boxWidth / 2
+*
 * @param Max Columns
 * @desc Maximum number of party members to show on one page.
 * @type number
@@ -19,6 +23,11 @@ Imported.IntegratedEquipMenu = true;
 * @type boolean
 * @default true
 *
+* @param Item Name Y
+* @parent Show Horizontal
+* @desc Y position of the item name.
+* @default 0
+*
 * @param Always Concise Format
 * @desc (true/false) Use consistent concise formatting for equipping or adapt based on party size?
 * @type boolean
@@ -28,24 +37,41 @@ Imported.IntegratedEquipMenu = true;
 * @desc Text to show when there are no party members that can equip the item.
 * @default None
 *
+* @param Show Horizontal
+* @desc (true/false) Alternate display mode.
+* @type boolean
+* @default false
+*
+* @param Horz Window Width
+* @parent Show Horizontal
+* @desc Width of the window.
+* @default Graphics.boxWidth * 2/3
+*
+* @param Horz Y Buffer
+* @parent Show Horizontal
+* @desc How much to buffer the parameters from the top.
+* @default 0
+*
+* @param Horz Param Left Buffer
+* @parent Show Horizontal
+* @desc How much to indent the parameters.
+* @default 0
+*
 * @param --- Buffers ---
 *
 * @param Param Buffer
 * @desc How much to buffer between the parameters and their values in concise format.
 * @parent --- Buffers ---
-* @type number
 * @default 20
 *
 * @param Param Left Buffer
 * @desc How much to buffer to the left of the parameters in concise format.
 * @parent --- Buffers ---
-* @type number
 * @default 0
 *
 * @param Y Buffer
 * @desc How much to buffer from the top, in pixels.
 * @parent --- Buffers ---
-* @type number
 * @default 0
 *
 * @param Between Buffer
@@ -57,7 +83,6 @@ Imported.IntegratedEquipMenu = true;
 * @param After Buffer
 * @desc How much to buffer between sprite and the parameters.
 * @parent --- Buffers ---
-* @type number
 * @default 18
 *
 * @param Single Member Buffer
@@ -68,7 +93,7 @@ Imported.IntegratedEquipMenu = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   Integrated Equip Menu v1.0a by mjshi
+*   Integrated Equip Menu v1.01 by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Plug & Play. No options and little to no configuration needed!
@@ -89,13 +114,24 @@ var persistentMini = params["Always Concise Format"] === "true";
 var noneText = params["None Text"];
 var maxNumCols = parseInt(params["Max Columns"]);
 var showHorizontal = params["Show Horizontal"] === "true";
+var itemNameY = parseInt(params["Item Name Y"]);
+var winWidth = params["Window Width"];
+var horzWidth = params["Horz Window Width"];
 
 var yBuffer = parseInt(params["Y Buffer"]);
-var paramLeftBuffer = parseInt(params["Param Left Buffer"]) || 0;
+var paramLeftBuffer = parseInt(params["Param Left Buffer"]);
 var paramBuffer = parseInt(params["Param Buffer"]);
 var betweenBuffer = parseInt(params["Between Buffer"]);
 var afterBuffer = parseInt(params["After Buffer"]);
 var oneBuffer = parseFloat(params["Single Member Buffer"]);
+
+if (showHorizontal) {
+	paramLeftBuffer = parseInt(params["Horz Param Left Buffer"]);
+	yBuffer = parseInt(params["Horz Y Buffer"]);
+	
+	paramLeftBuffer += 48;
+	yBuffer += 72;
+}
 
 //-----------------------------------------------------------------------------
 // Scene_Item
@@ -153,22 +189,27 @@ Window_IntegratedEquipMenu.prototype.initialize = function(x, y) {
 	this._equip = null;
 };
 
+if (!showHorizontal) {
 Window_IntegratedEquipMenu.prototype.cursorUp = function(wrap) {
     this.cursorLeft(wrap);
 };
 Window_IntegratedEquipMenu.prototype.cursorDown = function(wrap) {
     this.cursorRight(wrap);
 };
+}
 
 Window_IntegratedEquipMenu.prototype.itemHeight = function() {
+	if (showHorizontal) return this.lineHeight() * 1.5;
 	return this.height - this.padding * 2;
 };
 
 Window_IntegratedEquipMenu.prototype.windowWidth = function() {
-	return Graphics.boxWidth / 2;
+	if (showHorizontal) return eval(horzWidth);
+	return eval(winWidth);
 };
 
 Window_IntegratedEquipMenu.prototype.numVisibleRows = function() {
+	if (showHorizontal) return Math.min(this.maxItems(), Math.floor((this.height - this.padding*2 - yBuffer) / this.itemHeight()));
     return 1;
 };
 
@@ -203,6 +244,7 @@ Window_IntegratedEquipMenu.prototype.determineFormat = function() {
 	var canLongFormat = true;
 	if (this.commandSymbol(0) === 'none') return 1;
 	if (persistentMini) return -1;
+	if (showHorizontal) return -1;
 
 	if (this.maxItems() === 1) width -= width * oneBuffer * 2;
 
@@ -225,17 +267,26 @@ Window_IntegratedEquipMenu.prototype.determineFormat = function() {
 
 Window_IntegratedEquipMenu.prototype.itemRect = function(index) {
 	if (this._format === -1) {
-		var longest = "";
-		for (var i = 0; i < 8; i++) if (TextManager.param(i).length > longest.length) longest = TextManager.param(i);
-	    longest = this.textWidth(longest) + this.textPadding()*2 + paramBuffer;
+		if (!showHorizontal) {
+			var longest = "";
+			for (var i = 0; i < 8; i++) if (TextManager.param(i).length > longest.length) longest = TextManager.param(i);
+		    longest = this.textWidth(longest) + this.textPadding()*2 + paramBuffer;
 
-	    var rect = new Rectangle();
-	    var maxCols = this.maxCols();
-	    rect.width = this.itemWidth();
-	    rect.width -= longest/this.maxItems();
-	    rect.height = this.itemHeight();
-	    rect.x = index % maxCols * (rect.width + this.spacing()) - this._scrollX + longest;
-	    rect.y = Math.floor(index / maxCols) * rect.height - this._scrollY;
+		    var rect = new Rectangle();
+		    var maxCols = this.maxCols();
+		    rect.width = this.itemWidth();
+		    rect.width -= longest/this.maxItems();
+		    rect.height = this.itemHeight();
+		    rect.x = index % maxCols * (rect.width + this.spacing()) - this._scrollX + longest;
+		    rect.y = Math.floor(index / maxCols) * rect.height - this._scrollY;
+		} else {
+		    var rect = new Rectangle();
+		    var maxCols = this.maxCols();
+		    rect.width = this.itemWidth();
+		    rect.height = this.itemHeight();
+		    rect.x = index % maxCols * (rect.width + this.spacing()) - this._scrollX;
+		    rect.y = Math.floor(index / maxCols) * rect.height - this._scrollY + yBuffer;
+		}
 	    return rect;
 
 	} else {
@@ -264,7 +315,30 @@ Window_IntegratedEquipMenu.prototype.drawAllItems = function() {
 
 	if (this._format === -1) {
 		this.changeTextColor(this.systemColor());
-		for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), paramLeftBuffer, this.lineHeight() * i + (yBuffer + betweenBuffer + afterBuffer));
+		if (showHorizontal) {
+			var rect = this.itemRect(0);
+			var y = rect.y - this.lineHeight(), width = (rect.width - paramLeftBuffer) / 8;
+			for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), paramLeftBuffer + i * width, y, width, 'center');
+
+			this.drawItemName(this.equip(), (rect.width - (Window_Base._iconWidth + 4 + this.textWidth(this.equip().name))) / 2, itemNameY)
+		} else {
+			for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), paramLeftBuffer, this.lineHeight() * i + (yBuffer + betweenBuffer + afterBuffer));
+		}
+	}
+};
+
+Window_IntegratedEquipMenu.prototype.drawHorzItem = function(index) {
+	var rect = this.itemRect(index);
+	var actor = $gameParty.battleMembers()[parseInt(this.commandName(index))];
+	this.drawCharacter(actor.characterName(),  actor.characterIndex(), paramLeftBuffer/2, rect.y + rect.height/2 + 24);
+
+	var width = (this.itemRect(0).width - paramLeftBuffer) / 8;
+	var tempActor = JsonEx.makeDeepCopy(actor);
+	tempActor.forceChangeEquip(this.getSlotID(), this.equip());
+	for (var i = 0; i < 8; i++) {
+		newValue = tempActor.param(i);
+		this.changeTextColor(this.paramchangeTextColor(tempActor.param(i) - actor.param(i)));
+		this.drawText(tempActor.param(i), paramLeftBuffer + i*width, rect.y + (rect.height - this.lineHeight())/2, width, 'center');
 	}
 };
 
@@ -273,7 +347,12 @@ Window_IntegratedEquipMenu.prototype.drawItem = function(index) {
 	this.resetTextColor();
 
 	if (this.commandName(index) === 'None') {
-		this.drawText(noneText, rect.x, rect.height/2 - this.lineHeight(), rect.width, 'center');
+		this.drawText(noneText, rect.x, (rect.height - this.lineHeight())/2, rect.width, 'center');
+		return;
+	}
+
+	if (showHorizontal) {
+		this.drawHorzItem(index);
 		return;
 	}
 
