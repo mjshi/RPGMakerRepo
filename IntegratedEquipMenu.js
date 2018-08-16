@@ -19,11 +19,6 @@ Imported.IntegratedEquipMenu = true;
 * @type boolean
 * @default true
 *
-* @param Show Horizontal
-* @desc (true/false) Alternate display mode.
-* @type boolean
-* @default false
-*
 * @param Always Concise Format
 * @desc (true/false) Use consistent concise formatting for equipping or adapt based on party size?
 * @type boolean
