@@ -68,7 +68,8 @@ Imported.NPCDialogueShop = true;
  */
 
 /*:
-* @plugindesc A dialogue-focused custom shop scene. Requires MV 1.50+
+* @plugindesc A dialogue-focused custom shop scene.
+* Requires MV 1.5+
 * @author mjshi
 *
 * @param Shopkeepers
@@ -144,17 +145,18 @@ Imported.NPCDialogueShop = true;
 *     Setting Up Shop
 * ------------------------------------------------------------------------------
 *   Change the variable specified in Shopkeeper Variable to the index of your
-*   NPC, in the Shopkeepers lsit. Then, call the shop as per normal!
+*   NPC, in the Shopkeepers list. 1st NPC = 0, 2nd = 1, 3rd = 2, etc.
+*   Then, call the shop as per normal!
 *
-*   An example event page: https://i.imgur.com/55oCMKD.png
+*   An example event page: https://i.imgur.com/gtHZqUy.png
 *
 *   Text transcript in case the link goes down:
 *     Label: Shop
-*     Control Variables: #001 Shop NPC = 1
-*     Shop Processing: Consumable Item
-*                      Chainsaw
-*                      Casual Clothes
-*     If: Common Event Called is ON (common event switch)
+*     Control Variables: #001 Shop NPC = 0 (to use the first NPC)
+*     Shop Processing: Potion
+*                      Magic Water
+*                      Dispel Herb
+*     If: Common Event Called is ON (if common event switch is on)
 *       Control Switches: #001 Common Event Called = OFF
 *       Common Event: Rumor Dialogue
 *       Jump to Label: Shop
