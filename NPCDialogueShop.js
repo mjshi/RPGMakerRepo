@@ -74,7 +74,7 @@ Imported.NPCDialogueShop = true;
 * @param Shopkeepers
 * @type struct<Shopkeeper>[]
 * @desc Array of shopkeepers.
-* @default ["{\"image\":\"ShopDwarf\",\"position\":\"{\\\"x\\\":\\\"625\\\",\\\"y\\\":\\\"20\\\"}\",\"dialogue\":\"{\\\"buy\\\":\\\"Anything catch your eye?\\\",\\\"sell\\\":\\\"I see you have something for me!\\\",\\\"buy amount\\\":\\\"How many would you like?\\\",\\\"sell amount\\\":\\\"Here, let me take that off you.\\\",\\\"event\\\":\\\"I heard something the other day...\\\",\\\"cancel\\\":\\\"Leaving already?\\\"}\"}"]
+* @default ["{\"image\":\"\",\"position\":\"{\\\"x\\\":\\\"625\\\",\\\"y\\\":\\\"20\\\"}\",\"dialogue\":\"{\\\"buy\\\":\\\"Anything catch your eye?\\\",\\\"sell\\\":\\\"I see you have something for me!\\\",\\\"buy amount\\\":\\\"How many would you like?\\\",\\\"sell amount\\\":\\\"Here, let me take that off you.\\\",\\\"event\\\":\\\"I heard something the other day...\\\",\\\"cancel\\\":\\\"Leaving already?\\\"}\"}"]
 *
 * @param Shopkeep Variable
 * @type number
