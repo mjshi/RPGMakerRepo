@@ -274,7 +274,7 @@ var RuneSkills = {};
  *       rune count to allow for greater customizability
  * > 1.2a Fixed compatibility issue with YEP_X_AnimatedSVEnemies 
  * > 1.2b Added compatibility with Yanfly Limited Skill Uses-- make sure to
- *        place this plugin under it!
+ *        place this plugin above it!
  * ----------------------------------------------------------------------------
  *
  * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
