@@ -272,7 +272,8 @@ var RuneSkills = {};
  * > 1.1b Save bugfix
  * > 1.2 Added rune result window for "learned" skill combos, overhauled max
  *       rune count to allow for greater customizability
- * > 1.2a Fixed compatibility issue with YEP_X_AnimatedSVEnemies 
+ * > 1.2a Added compatibility with Yanfly Limited Skill Uses-- make sure to
+ *        place this plugin under it!
  * ----------------------------------------------------------------------------
  *
  * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
@@ -330,7 +331,7 @@ RuneSkills.rememberSkill = function (actorId, skillId) {
 var _runeSkills_DataManager_isDatabaseLoaded = DataManager.isDatabaseLoaded;
 DataManager.isDatabaseLoaded = function() {
 	if (RuneSkills.Skill === undefined) RuneSkills.initialize();
-    return _runeSkills_DataManager_isDatabaseLoaded.call(this);
+	return _runeSkills_DataManager_isDatabaseLoaded.call(this);
 };
 
 RuneSkills.areEqual = function (skillId, runeArray) {
@@ -424,7 +425,6 @@ Game_Actor.prototype.maxRunes = function () {
 	if (!set) return RuneSkills.DefaultMax;
 
 	if (meta.maxruneformula) {
-		console.log(eval(meta.maxruneformula));
 		return Math.min(eval(meta.maxruneformula), RuneSkills.DefaultMaxCap);
 
 	} if (meta.maxrunestat) {
@@ -444,17 +444,17 @@ Game_Actor.prototype.maxRunes = function () {
 //=============================================================================
 
 function Window_RuneResult() {
-    this.initialize.apply(this, arguments);
+	this.initialize.apply(this, arguments);
 };
 
 Window_RuneResult.prototype = Object.create(Window_Base.prototype);
 Window_RuneResult.prototype.constructor = Window_RuneResult;
 
 Window_RuneResult.prototype.initialize = function(selected_window) {
-    this._selected = selected_window;
-    this._actor = null;
-    Window_Base.prototype.initialize.call(this, RuneSkills.RuneResultWindow[0], RuneSkills.RuneResultWindow[1], RuneSkills.RuneResultWindow[2], RuneSkills.RuneResultWindow[3]);
-    this.hide();
+	this._selected = selected_window;
+	this._actor = null;
+	Window_Base.prototype.initialize.call(this, RuneSkills.RuneResultWindow[0], RuneSkills.RuneResultWindow[1], RuneSkills.RuneResultWindow[2], RuneSkills.RuneResultWindow[3]);
+	this.hide();
 };
 
 Window_RuneResult.prototype.setActor = function(actor) {
@@ -462,8 +462,8 @@ Window_RuneResult.prototype.setActor = function(actor) {
 };
 
 Window_RuneResult.prototype.refresh = function(actor) {
-    this.contents.clear();
-    if (this._selected.data().length === 0) return;
+	this.contents.clear();
+	if (this._selected.data().length === 0) return;
 
 	var skill = this._selected.getResultingSkill();
 	var text = $dataSkills[skill].name;
@@ -474,8 +474,8 @@ Window_RuneResult.prototype.refresh = function(actor) {
 		icon = RuneSkills.UnknownResultIcon;
 	}
 
-    var x = (this.contents.width - (32 + RuneSkills.IconSpacing) - this.textWidth(text)) / 2;
-    var y = (this.contents.height - 32) / 2;
+	var x = (this.contents.width - (32 + RuneSkills.IconSpacing) - this.textWidth(text)) / 2;
+	var y = (this.contents.height - 32) / 2;
 	this.drawIcon(icon, x, y);
 	this.drawText(text, x + 32 + RuneSkills.IconSpacing, y);
 };
@@ -485,16 +485,16 @@ Window_RuneResult.prototype.refresh = function(actor) {
 //=============================================================================
 
 function Window_RuneSelected() {
-    this.initialize.apply(this, arguments);
+	this.initialize.apply(this, arguments);
 };
 
 Window_RuneSelected.prototype = Object.create(Window_Base.prototype);
 Window_RuneSelected.prototype.constructor = Window_RuneSelected;
 
 Window_RuneSelected.prototype.initialize = function() {
-    this._runes = [];
-    Window_Base.prototype.initialize.call(this, RuneSkills.ChosenRunesWindow[0], RuneSkills.ChosenRunesWindow[1], RuneSkills.ChosenRunesWindow[2], RuneSkills.ChosenRunesWindow[3]);
-    this.hide();
+	this._runes = [];
+	Window_Base.prototype.initialize.call(this, RuneSkills.ChosenRunesWindow[0], RuneSkills.ChosenRunesWindow[1], RuneSkills.ChosenRunesWindow[2], RuneSkills.ChosenRunesWindow[3]);
+	this.hide();
 };
 
 Window_RuneSelected.prototype.addSkill = function(skill_id) {
@@ -514,21 +514,21 @@ Window_RuneSelected.prototype.data = function() {
 };
 
 Window_RuneSelected.prototype.drawRunes = function() {
-    var x = (this.contents.width - (this._runes.length * (32 + RuneSkills.IconSpacing))) / 2;
-    var y = (this.contents.height - 32) / 2;
+	var x = (this.contents.width - (this._runes.length * (32 + RuneSkills.IconSpacing))) / 2;
+	var y = (this.contents.height - 32) / 2;
 
-    for (var i = 0; i < this._runes.length; i++) {
-    	var skill = $dataSkills[this._runes[i]];
-    	this.drawIcon(skill.iconIndex, x, y);
-    	x += 32 + RuneSkills.IconSpacing;
-    }
+	for (var i = 0; i < this._runes.length; i++) {
+		var skill = $dataSkills[this._runes[i]];
+		this.drawIcon(skill.iconIndex, x, y);
+		x += 32 + RuneSkills.IconSpacing;
+	}
 };
 
 Window_RuneSelected.prototype.refresh = function() {
-    if (this.contents) {
-        this.contents.clear();
-        this.drawRunes();
-    }
+	if (this.contents) {
+		this.contents.clear();
+		this.drawRunes();
+	}
 };
 
 Window_RuneSelected.prototype.isSuccessfulCast = function() {
@@ -572,27 +572,27 @@ Window_RuneSelected.prototype.skillIsMatch = function() {
 //=============================================================================
 
 function Window_RuneList() {
-    this.initialize.apply(this, arguments);
+	this.initialize.apply(this, arguments);
 }
 
 Window_RuneList.prototype = Object.create(Window_SkillList.prototype);
 Window_RuneList.prototype.constructor = Window_RuneList;
 
 Window_RuneList.prototype.initialize = function() {
-    Window_SkillList.prototype.initialize.call(this, RuneSkills.RuneListWindow[0], RuneSkills.RuneListWindow[1], RuneSkills.RuneListWindow[2], RuneSkills.RuneListWindow[3]);
-    this.hide();
-    this.deactivate();
+	Window_SkillList.prototype.initialize.call(this, RuneSkills.RuneListWindow[0], RuneSkills.RuneListWindow[1], RuneSkills.RuneListWindow[2], RuneSkills.RuneListWindow[3]);
+	this.hide();
+	this.deactivate();
 };
 
 Window_RuneList.prototype.show = function() {
-    this.selectLast();
-    this.showHelpWindow();
-    Window_SkillList.prototype.show.call(this);
+	this.selectLast();
+	this.showHelpWindow();
+	Window_SkillList.prototype.show.call(this);
 };
 
 Window_RuneList.prototype.hide = function() {
-    this.hideHelpWindow();
-    Window_SkillList.prototype.hide.call(this);
+	this.hideHelpWindow();
+	Window_SkillList.prototype.hide.call(this);
 };
 
 Window_RuneList.prototype.includes = function(item) {
@@ -608,20 +608,20 @@ Window_RuneList.prototype.enable = function(item) {
 //=============================================================================
 
 function Window_RuneChoice() {
-    this.initialize.apply(this, arguments);
+	this.initialize.apply(this, arguments);
 };
 
 Window_RuneChoice.prototype = Object.create(Window_Command.prototype);
 Window_RuneChoice.prototype.constructor = Window_RuneChoice;
 
 Window_RuneChoice.prototype.initialize = function(selected_window) {
-    Window_Command.prototype.initialize.call(this, RuneSkills.RuneChoiceWindow[0], RuneSkills.RuneChoiceWindow[1]);
-    this._selected = selected_window;
-    this._actor = null;
-    this.hide();
+	Window_Command.prototype.initialize.call(this, RuneSkills.RuneChoiceWindow[0], RuneSkills.RuneChoiceWindow[1]);
+	this._selected = selected_window;
+	this._actor = null;
+	this.hide();
 
-    this.deactivate();
-    this.deselect();
+	this.deactivate();
+	this.deselect();
 };
 
 Window_RuneChoice.prototype.setActor = function(actor) {
@@ -638,12 +638,12 @@ Window_RuneChoice.prototype.makeCommandList = function() {
 		}
 	}
 
-    var execute = RuneSkills.ChoiceList[1].replace("%s", MP);
-    this.addCommand(RuneSkills.ChoiceList[0], 'add', this._actor && this._selected._runes.length < this._actor.maxRunes());
-    this.addCommand(execute, 'execute', this.canExecute());
-    this.addCommand(RuneSkills.ChoiceList[2], 'delete');
-    this.addCommand(RuneSkills.ChoiceList[3], 'clear');
-    this.addCommand(RuneSkills.ChoiceList[4], 'cancel');
+	var execute = RuneSkills.ChoiceList[1].replace("%s", MP);
+	this.addCommand(RuneSkills.ChoiceList[0], 'add', this._actor && this._selected._runes.length < this._actor.maxRunes());
+	this.addCommand(execute, 'execute', this.canExecute());
+	this.addCommand(RuneSkills.ChoiceList[2], 'delete');
+	this.addCommand(RuneSkills.ChoiceList[3], 'clear');
+	this.addCommand(RuneSkills.ChoiceList[4], 'cancel');
 }
 
 Window_RuneChoice.prototype.canExecute = function() {
@@ -701,7 +701,7 @@ Scene_Battle.prototype.createAllWindows = function() {
 
 var runeSkills_Scene_Battle_anyInputActive = Scene_Battle.prototype.isAnyInputWindowActive;
 Scene_Battle.prototype.isAnyInputWindowActive = function() {
-    return runeSkills_Scene_Battle_anyInputActive.call(this) || this._runeList.active || this._runeChoice.active;
+	return runeSkills_Scene_Battle_anyInputActive.call(this) || this._runeList.active || this._runeChoice.active;
 };
 
 Scene_Battle.prototype.createRuneWindows = function() {
@@ -712,18 +712,18 @@ Scene_Battle.prototype.createRuneWindows = function() {
 	this.addWindow(this._runeResult);
 
 	this._runeList = new Window_RuneList();
-    this._runeList.setHandler('ok',     this.onRuneOk.bind(this));
-    this._runeList.setHandler('cancel', this.onRuneCancel.bind(this));
-    if (RuneSkills.ShowHelpWindow) this._runeList.setHelpWindow(this._helpWindow);
+	this._runeList.setHandler('ok',     this.onRuneOk.bind(this));
+	this._runeList.setHandler('cancel', this.onRuneCancel.bind(this));
+	if (RuneSkills.ShowHelpWindow) this._runeList.setHelpWindow(this._helpWindow);
 	this.addWindow(this._runeList);
-    
-    this._runeChoice = new Window_RuneChoice(this._selectedRune);
-    this._runeChoice.setHandler('add',     this.onRuneAdd.bind(this));
-    this._runeChoice.setHandler('execute', this.onRuneExecute.bind(this));
-    this._runeChoice.setHandler('delete',  this.onRuneDelete.bind(this));
-    this._runeChoice.setHandler('clear',   this.onRuneClear.bind(this));
-    this._runeChoice.setHandler('cancel',  this.onRuneChoiceCancel.bind(this));
-    this.addWindow(this._runeChoice);
+	
+	this._runeChoice = new Window_RuneChoice(this._selectedRune);
+	this._runeChoice.setHandler('add',     this.onRuneAdd.bind(this));
+	this._runeChoice.setHandler('execute', this.onRuneExecute.bind(this));
+	this._runeChoice.setHandler('delete',  this.onRuneDelete.bind(this));
+	this._runeChoice.setHandler('clear',   this.onRuneClear.bind(this));
+	this._runeChoice.setHandler('cancel',  this.onRuneChoiceCancel.bind(this));
+	this.addWindow(this._runeChoice);
 };
 
 var runeSkills_Scene_Battle_commandSkill = Scene_Battle.prototype.commandSkill;
@@ -731,19 +731,19 @@ Scene_Battle.prototype.commandSkill = function() {
 	if (this._actorCommandWindow.currentExt() == RuneSkills.SkillType) {
 		var actor = BattleManager.actor();
 		this._runeList.setActor(actor);
-	    this._runeList.setStypeId(this._actorCommandWindow.currentExt());
-	    this._runeList.refresh();
-	    this._runeList.show();
-	    this._runeList.activate();
+		this._runeList.setStypeId(this._actorCommandWindow.currentExt());
+		this._runeList.refresh();
+		this._runeList.show();
+		this._runeList.activate();
 
-	    this._runeChoice.setActor(actor);
-	    this._runeResult.setActor(actor);
-	    if (RuneSkills.Persist) {
-	    	this._runeChoice.refresh();
-	    	this._runeChoice.show();
-	    	this._runeResult.refresh();
-	    	this._runeResult.show();
-	    }
+		this._runeChoice.setActor(actor);
+		this._runeResult.setActor(actor);
+		if (RuneSkills.Persist) {
+			this._runeChoice.refresh();
+			this._runeChoice.show();
+			this._runeResult.refresh();
+			this._runeResult.show();
+		}
 
 		this._selectedRune._runes = [];
 		this._selectedRune.refresh();
@@ -757,7 +757,7 @@ Game_BattlerBase.prototype.paySkillCost = function(skill) {
 		combine_cost = 0;
 	} else {
 		this._mp -= this.skillMpCost(skill);
-	    this._tp -= this.skillTpCost(skill);
+		this._tp -= this.skillTpCost(skill);
 	}
 };
 
@@ -767,8 +767,8 @@ Scene_Battle.prototype.onRuneOk = function() {
 	this._runeChoice.refresh();
 	if (!RuneSkills.Persist) {
 		this._runeChoice.open();
-	    this._runeResult.refresh();
-	    this._runeResult.show();
+		this._runeResult.refresh();
+		this._runeResult.show();
 	}
 	this._runeChoice.activate();
 	this._runeChoice.select(0);
@@ -797,7 +797,7 @@ Scene_Battle.prototype.onRuneAdd = function() {
 		this._runeChoice.deselect();
 		if (!RuneSkills.Persist) {
 			this._runeChoice.close();
-	    	this._runeResult.hide();
+			this._runeResult.hide();
 		}
 
 		this._runeList.refresh();
@@ -809,15 +809,24 @@ Scene_Battle.prototype.onRuneAdd = function() {
 };
 
 Scene_Battle.prototype.onRuneExecute = function() {
-    var skill = this._selectedRune.getResultingSkill(); //gets skill ID
-    var action = BattleManager.inputtingAction();
+	var skill = this._selectedRune.getResultingSkill(); //gets skill ID
+	var action = BattleManager.inputtingAction();
+	
+	if (Imported.YEP_X_LimitedSkillUses) {
+		this._selectedRune._runes.forEach(runeID => {
+			var skill = $dataSkills[runeID];
+			if (BattleManager.actor().isSkillLimitedUse(skill)) {
+				BattleManager.actor().paySkillLimitedUseCost(skill.id);
+			}
+		});
+	}
 
-    action.setSkill(skill);
-    BattleManager.actor().setLastBattleSkill(skill);
-    this._tempRunes = this._selectedRune._runes;
-    this.hideRuneRelatedThings();
-    BattleManager.actor()._combine_cost = this._runeChoice.calculateTotalMp();
-    this.onSelectAction();
+	action.setSkill(skill);
+	BattleManager.actor().setLastBattleSkill(skill);
+	this._tempRunes = this._selectedRune._runes;
+	this.hideRuneRelatedThings();
+	BattleManager.actor()._combine_cost = this._runeChoice.calculateTotalMp();
+	this.onSelectAction();
 };
 
 Scene_Battle.prototype.hideRuneRelatedThings = function() {
@@ -838,10 +847,10 @@ Scene_Battle.prototype.onRuneClear = function() {
 	this._selectedRune.refresh();
 	if (!RuneSkills.Persist) {
 		this._runeChoice.close();
-	    this._runeResult.hide();
+		this._runeResult.hide();
 	} else {
 		this._runeChoice.refresh();
-	    this._runeResult.refresh();
+		this._runeResult.refresh();
 	}
 	this._runeChoice.deactivate();
 	this._runeChoice.deselect();
@@ -860,10 +869,10 @@ Scene_Battle.prototype.onRuneDelete = function() {
 Scene_Battle.prototype.onRuneChoiceCancel = function() {
 	if (!RuneSkills.Persist) {
 		this._runeChoice.close();
-	    this._runeResult.hide();
+		this._runeResult.hide();
 	} else {
 		this._runeChoice.refresh();
-	    this._runeResult.refresh();
+		this._runeResult.refresh();
 	}
 	this._runeChoice.deactivate();
 	this._runeChoice.deselect();
@@ -873,13 +882,13 @@ Scene_Battle.prototype.onRuneChoiceCancel = function() {
 var runeSkills_Scene_Battle_onEnemyCancel = Scene_Battle.prototype.onEnemyCancel;
 Scene_Battle.prototype.onEnemyCancel = function() {
 	if (this._actorCommandWindow.currentExt() == RuneSkills.SkillType) {
-    	this._enemyWindow.hide();
-    	this._selectedRune._runes = this._tempRunes;
-    	this._selectedRune.refresh();
-    	this._selectedRune.show();
-    	this._runeResult.show();
+		this._enemyWindow.hide();
+		this._selectedRune._runes = this._tempRunes;
+		this._selectedRune.refresh();
+		this._selectedRune.show();
+		this._runeResult.show();
 
-    	this._runeList.show();
+		this._runeList.show();
 		this._runeChoice.show();
 		this._runeChoice.activate();
 		this._runeChoice.select(0);
@@ -890,12 +899,12 @@ var runeSkills_Scene_Battle_onActorCancel = Scene_Battle.prototype.onActorCancel
 Scene_Battle.prototype.onActorCancel = function() {
 	if (this._actorCommandWindow.currentExt() == RuneSkills.SkillType) {
 		this._actorWindow.hide();
-    	this._selectedRune._runes = this._tempRunes;
-    	this._selectedRune.refresh();
-    	this._selectedRune.show();
-    	this._runeResult.show();
+		this._selectedRune._runes = this._tempRunes;
+		this._selectedRune.refresh();
+		this._selectedRune.show();
+		this._runeResult.show();
 
-    	this._runeList.show();
+		this._runeList.show();
 		this._runeChoice.show();
 		this._runeChoice.activate();
 		this._runeChoice.select(0);
@@ -904,32 +913,31 @@ Scene_Battle.prototype.onActorCancel = function() {
 
 var runeSkills_Game_Actor_performAction = Game_Actor.prototype.performAction;
 Game_Actor.prototype.performAction = function(action) {
-	if (action._subjectActorId > 0) {
-		if (RuneSkills.learnAfterCast && action.isSkill() && !this.isLearnedSkill(action.item().id) && $dataSkills[action.item().id].meta.runes) {
-			this.learnSkill(action.item().id);
-		}
-
-		if (RuneSkills.hideUnlearned) RuneSkills.rememberSkill(this.actorId(), action.item().id);
+	if (RuneSkills.learnAfterCast && action.isSkill() && !this.isLearnedSkill(action.item().id) && $dataSkills[action.item().id].meta.runes) {
+		this.learnSkill(action.item().id);
 	}
 
+	if (RuneSkills.hideUnlearned) {
+		RuneSkills.rememberSkill(this.actorId(), action.item().id);
+	}
 	runeSkills_Game_Actor_performAction.call(this, action);
 };
 
 var runeSkills_BattleManager_processVictory = BattleManager.processVictory;
 BattleManager.processVictory = function() {
-    $gameParty.removeTemporaryBattleSkills();
+	$gameParty.removeTemporaryBattleSkills();
 	runeSkills_BattleManager_processVictory.call(this);
 };
 
 Game_Party.prototype.removeTemporaryBattleSkills = function() {
-    this.members().forEach(function(actor) {
-    	var shouldUnlearn = [];
-	    actor.skills().forEach(function(skill) {
-	    	if ($dataSkills[skill.id].meta["remove after battle"]) shouldUnlearn.push(skill.id);
-	    });
+	this.members().forEach(function(actor) {
+		var shouldUnlearn = [];
+		actor.skills().forEach(function(skill) {
+			if ($dataSkills[skill.id].meta["remove after battle"]) shouldUnlearn.push(skill.id);
+		});
 
-	    for (var i = 0; i < shouldUnlearn.length; i++) actor.forgetSkill(shouldUnlearn[i]);
-    });
+		for (var i = 0; i < shouldUnlearn.length; i++) actor.forgetSkill(shouldUnlearn[i]);
+	});
 };
 
 var runeSkills_DataManager_makeSaveContents = DataManager.makeSaveContents;
