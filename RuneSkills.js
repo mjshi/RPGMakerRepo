@@ -155,7 +155,7 @@ var RuneSkills = {};
  * @help
  *
  * ----------------------------------------------------------------------------
- *   Rune Skill System v1.2a by mjshi
+ *   Rune Skill System v1.2b by mjshi
  *   Free for both commercial and non-commercial use, with credit.
  * ----------------------------------------------------------------------------
  *
@@ -272,7 +272,8 @@ var RuneSkills = {};
  * > 1.1b Save bugfix
  * > 1.2 Added rune result window for "learned" skill combos, overhauled max
  *       rune count to allow for greater customizability
- * > 1.2a Added compatibility with Yanfly Limited Skill Uses-- make sure to
+ * > 1.2a Fixed compatibility issue with YEP_X_AnimatedSVEnemies 
+ * > 1.2b Added compatibility with Yanfly Limited Skill Uses-- make sure to
  *        place this plugin under it!
  * ----------------------------------------------------------------------------
  *
@@ -913,13 +914,14 @@ Scene_Battle.prototype.onActorCancel = function() {
 
 var runeSkills_Game_Actor_performAction = Game_Actor.prototype.performAction;
 Game_Actor.prototype.performAction = function(action) {
-	if (RuneSkills.learnAfterCast && action.isSkill() && !this.isLearnedSkill(action.item().id) && $dataSkills[action.item().id].meta.runes) {
-		this.learnSkill(action.item().id);
+	if (action._subjectActorId > 0) {
+		if (RuneSkills.learnAfterCast && action.isSkill() && !this.isLearnedSkill(action.item().id) && $dataSkills[action.item().id].meta.runes) {
+			this.learnSkill(action.item().id);
+		}
+
+		if (RuneSkills.hideUnlearned) RuneSkills.rememberSkill(this.actorId(), action.item().id);
 	}
 
-	if (RuneSkills.hideUnlearned) {
-		RuneSkills.rememberSkill(this.actorId(), action.item().id);
-	}
 	runeSkills_Game_Actor_performAction.call(this, action);
 };
 
