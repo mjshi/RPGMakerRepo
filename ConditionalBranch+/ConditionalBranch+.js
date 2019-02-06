@@ -124,9 +124,17 @@ function Check() {};
  * -- EX: Check.greater(1, 2, 3, 5)
  * -- checks if variables 1, 2, and 3 are at least 5.
  * 
+ * Check.vgreater(variable, *variables)
+ * -- EX: Check.vgreater(1, 2, 3, 5)
+ * -- checks if variable 1 is bigger than variables 2, 3, and 5.
+ * 
  * Check.lesser(*variables, value)
  * -- EX: Check.lesser(1, 2, 3, 5)
  * -- checks if variables 1, 2, and 3 are at most 5.
+ * 
+ * Check.vlesser(variable, *variables)
+ * -- EX: Check.vgreater(1, 2, 3, 5)
+ * -- checks if variable 1 is smaller than variables 2, 3, and 5.
  * 
  * Check.in_range(*variables, start, stop)
  * -- EX: Check.in_range(1, 3, 4, 5)
@@ -387,7 +395,17 @@ Check.greater = function() {
 	for (var i = 0; i < vars.length; i++) {
 		if ($gameVariables.value(vars[i]) < value) return false;
 	}
-		return true;
+	return true;
+};
+
+Check.vgreater = function() {
+	var vars = Array.prototype.slice.call(arguments);
+	var orig = vars.shift();
+
+	for (var i = 0; i < vars.length; i++) {
+		if ($gameVariables.value(orig) < $gameVariables.value(vars[i])) return false;
+	}
+	return true;
 };
 
 Check.lesser = function() {
@@ -398,6 +416,16 @@ Check.lesser = function() {
 		if ($gameVariables.value(vars[i]) > value) return false;
 	}
 		return true;
+};
+
+Check.vlesser = function() {
+	var vars = Array.prototype.slice.call(arguments);
+	var orig = vars.shift();
+
+	for (var i = 0; i < vars.length; i++) {
+		if ($gameVariables.value(orig) > $gameVariables.value(vars[i])) return false;
+	}
+	return true;
 };
 
 Check.in_range = function() {
