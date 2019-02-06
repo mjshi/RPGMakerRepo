@@ -133,7 +133,7 @@ function Check() {};
  * -- checks if variables 1, 2, and 3 are at most 5.
  * 
  * Check.vlesser(variable, *variables)
- * -- EX: Check.vgreater(1, 2, 3, 5)
+ * -- EX: Check.vlesser(1, 2, 3, 5)
  * -- checks if variable 1 is smaller than variables 2, 3, and 5.
  * 
  * Check.in_range(*variables, start, stop)
@@ -415,7 +415,7 @@ Check.lesser = function() {
 	for (var i = 0; i < vars.length; i++) {
 		if ($gameVariables.value(vars[i]) > value) return false;
 	}
-		return true;
+	return true;
 };
 
 Check.vlesser = function() {
