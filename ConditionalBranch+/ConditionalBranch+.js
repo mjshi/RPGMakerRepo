@@ -2,13 +2,13 @@
 function Check() {};
 
 /*:
- * @plugindesc Conditional Branch+ v1.2: Checks for various things.
+ * @plugindesc Some handy shorthands for your conditional branches.
  * Read help file for more information.
  * @author mjshi
  *
  * @help
  * ------------------------------------------------------------------------------
- *    Conditional Branch+ v1.2
+ *    Conditional Branch+ v1.2a
  *     Extends the functionality of what a conditional branch can check.
  *     By mjshi, OK for use in all projects with credit.
  * ------------------------------------------------------------------------------
