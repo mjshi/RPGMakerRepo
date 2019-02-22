@@ -6,7 +6,7 @@ var Imported = Imported || {};
 Imported.BattlePortrait = true;
 
 /*:
-* @plugindesc 
+* @plugindesc Show portraits during battle.
 * @author mjshi
 *
 * @param Auto Adjust
@@ -37,14 +37,30 @@ Imported.BattlePortrait = true;
 * @desc (y/n)
 * @default y
 *
+* @param Image Filename
+* @desc Code that will be evaluated to determine what image to use for each actor.
+* @default 'Actor' + actor.actorId()
+*
 * @help 
 * ------------------------------------------------------------------------------
-*   BattlePortrait v1.0 by mjshi
+*   BattlePortrait v1.1 by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Installation: Place all bust images in img/system.
 *   Images should be named "Actor#.png", where # is the corresponding actor ID.
+*   
+* ------------------------------------------------------------------------------
+*   Advanced usage
+* ------------------------------------------------------------------------------
+*   The Image Filename parameter could be modified to change what image should
+*   be loaded. For example, if you wanted to change the actor's battle portrait
+*   when their class changes, you could set it to:
+*     'Actor' + actor.actorId() + '_' + actor._classId
 *
+*   That way, images would be named "Actor#_#.png" where the first # is the
+*   actor's ID and the second # is the class's ID.
+*
+* ------------------------------------------------------------------------------
 * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
 *   try my best to help you!
 */
@@ -67,6 +83,7 @@ var hide1 = boolp("Hide during item and skill selection");
 var hide2 = boolp("Hide during enemy target selection");
 var hide3 = boolp("Hide during ally target selection");
 var autoAdjust = boolp("Auto Adjust");
+var imageFilename = PluginManager.parameters('BattlePortrait')["Image Filename"];
 
 //===========================================================
 // Scene_Battle
@@ -115,7 +132,7 @@ Window_BattlePortrait.prototype.initialize = function(x, y) {
 };
 
 Window_BattlePortrait.prototype.setActor = function(actor) {
-	this._image.bitmap = ImageManager.loadSystem("Actor" + actor.actorId());
+	this._image.bitmap = ImageManager.loadSystem(eval(imageFilename));
 };
 
 Window_BattlePortrait.prototype.update = function() {
