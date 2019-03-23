@@ -82,29 +82,43 @@ Imported.NPCDialogueShop = true;
 * @desc Variable that holds the index of the current shopkeeper.
 * @default 1
 *
+* @param Layout
+* @type select
+* @option Custom
+* @option Default MV
+* @option Default 720p
+* @desc What window layout to use. Setting this to anything other than custom will ignore the dimensions given below.
+* @default Custom
+*
 * @param Command Window
+* @parent Layout
 * @type struct<DimensionsNH>
-* @default {"x":"20","y":"20","width":"562"}
+* @default {"x":"10","y":"10","width":"500"}
 *
 * @param Gold Window
+* @parent Layout
 * @type struct<DimensionsNH>
-* @default {"x":"582","y":"168","width":"240"}
+* @default {"x":"510","y":"10","width":"240"}
 *
 * @param Item List
+* @parent Layout
 * @type struct<Dimensions>
-* @default {"x":"20","y":"92","width":"562","height":"438"}
+* @default {"x":"10","y":"82","width":"500","height":"350"}
 *
 * @param Sell Item List
+* @parent Layout
 * @type struct<Dimensions>
-* @default {"x":"20","y":"164","width":"562","height":"366"}
+* @default {"x":"10","y":"154","width":"500","height":"278"}
 *
 * @param Possessed Items
+* @parent Layout
 * @type struct<DimensionsNH>
-* @default {"x":"582","y":"240","width":"255"}
+* @default {"x":"510","y":"82","width":"240"}
 *
 * @param Actor Stat Window
+* @parent Layout
 * @type struct<Dimensions>
-* @default {"x":"582","y":"312","width":"350","height":"218"}
+* @default {"x":"510","y":"154","width":"295","height":"218"}
 *
 * @param Help Window Lines
 * @type number
@@ -136,7 +150,7 @@ Imported.NPCDialogueShop = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   NPC Dialogue Shop v1.0 by mjshi
+*   NPC Dialogue Shop v1.01 by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Installation: Place shopkeeper images in img/pictures, then define a 
@@ -172,13 +186,44 @@ Imported.NPCDialogueShop = true;
 
 var params = PluginManager.parameters('NPCDialogueShop');
 
+var layoutLibrary = {
+	"Custom" : {
+		"command" :	params['Command Window'],
+		"gold" : 	params['Gold Window'],
+		"items" : 	params['Item List'],
+		"sell" : 	params['Sell Item List'],
+		"bag" : 	params['Possessed Items'],
+		"stats" : 	params['Actor Stat Window']
+	},
+
+	"Default MV" : {
+		"command" :	`{"x":"10","y":"10","width":"500"}`,
+		"gold" : 	`{"x":"510","y":"10","width":"240"}`,
+		"items" : 	`{"x":"10","y":"82","width":"500","height":"350"}`,
+		"sell" : 	`{"x":"10","y":"154","width":"500","height":"278"}`,
+		"bag" : 	`{"x":"510","y":"82","width":"240"}`,
+		"stats" : 	`{"x":"510","y":"154","width":"295","height":"218"}`
+	},
+
+	"Default 720p" : {
+		"command" :	`{"x":"20","y":"20","width":"562"}`,
+		"gold" : 	`{"x":"582","y":"168","width":"240"}`,
+		"items" : 	`{"x":"20","y":"92","width":"562","height":"438"}`,
+		"sell" : 	`{"x":"20","y":"164","width":"562","height":"366"}`,
+		"bag" : 	`{"x":"582","y":"240","width":"255"}`,
+		"stats" : 	`{"x":"582","y":"312","width":"350","height":"218"}`
+	},
+};
+
 var shopkeepDatabase = JSON.parse(params['Shopkeepers']);
-var commandPos = JSON.parse(params['Command Window']);
-var goldPos = JSON.parse(params['Gold Window']);
-var itemListPos = JSON.parse(params['Item List']);
-var sellItemListPos = JSON.parse(params['Sell Item List']);
-var possessPos = JSON.parse(params['Possessed Items']);
-var actorStatPos = JSON.parse(params['Actor Stat Window']);
+var layout = layoutLibrary[params["Layout"]];
+
+var commandPos = 		JSON.parse(layout.command);
+var goldPos = 			JSON.parse(layout.gold);
+var itemListPos = 		JSON.parse(layout.items);
+var sellItemListPos =	JSON.parse(layout.sell);
+var possessPos = 		JSON.parse(layout.bag);
+var actorStatPos = 		JSON.parse(layout.stats);
 
 var helpLines = parseInt(params['Help Window Lines']);
 var commonEventName = params['Common Event Name'];
@@ -468,9 +513,10 @@ Window_ShopStatus.prototype.drawEquipInfo = function(x, y) {
 		this.drawText(noEquipName, x, y, width, 'center');
 		return;
 	}
+	this.drawText(actor.name(), x, y, width, 'center');
+
 	if (this._currentIndex !== 0) this.drawText("<<", x, y, width, 'left');
 	if (this._currentIndex < this.statusMembers().length - 1) this.drawText(">>", x, y, width, 'right');
-	this.drawText(actor.name(), x, y, width, 'center');
 
     var item1 = this.currentEquippedItem(actor, this._item.etypeId);
 	this.drawActorParamChange(x, y + this.lineHeight(), actor, item1);
@@ -492,6 +538,7 @@ Window_ShopStatus.prototype.drawActorParamChange = function(x, y, actor, item1) 
     for (var i = 0; i < 8; i++) {
     	this.resetTextColor();
     	this.drawDarkRect(x - this.textPadding(), y, width + this.textPadding()*2, this.lineHeight());
+    	this.changeTextColor(this.systemColor());
     	this.drawText(TextManager.param(i), x, y);
 
     	var change = this._item.params[i] - (item1 ? item1.params[i] : 0);
