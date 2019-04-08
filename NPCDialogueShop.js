@@ -87,6 +87,8 @@ Imported.NPCDialogueShop = true;
 * @option Custom
 * @option Default MV
 * @option Default 720p
+* @option Alternate (tale)
+* @option Shopkeep Display (gothicvoid)
 * @desc What window layout to use. Setting this to anything other than custom will ignore the dimensions given below.
 * @default Custom
 *
@@ -150,7 +152,7 @@ Imported.NPCDialogueShop = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   NPC Dialogue Shop v1.01 by mjshi
+*   NPC Dialogue Shop v1.01a by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Installation: Place shopkeeper images in img/pictures, then define a 
@@ -213,6 +215,25 @@ var layoutLibrary = {
 		"bag" : 	`{"x":"582","y":"240","width":"255"}`,
 		"stats" : 	`{"x":"582","y":"312","width":"350","height":"218"}`
 	},
+
+	"Alternate (tale)" : {
+		"command" :	`{"x":"5","y":"5","width":"525"}`,
+		"gold" : 	`{"x":"529","y":"5","width":"235"}`,
+		"items" : 	`{"x":"5","y":"76","width":"525","height":"350"}`,
+		"sell" : 	`{"x":"5","y":"147","width":"525","height":"279"}`,
+		"bag" : 	`{"x":"529","y":"145","width":"235"}`,
+		"stats" : 	`{"x":"529","y":"216","width":"275","height":"210"}`,
+	},
+
+	"Shopkeep Display (gothicvoid)" : {
+		"command" :	`{"x":"10","y":"10","width":"350"}`,
+		"gold" : 	`{"x":"360","y":"10","width":"200"}`,
+		"items" : 	`{"x":"10","y":"82","width":"350","height":"350"}`,
+		"sell" : 	`{"x":"10","y":"154","width":"500","height":"290"}`,
+		"bag" : 	`{"x":"575","y":"10","width":"200"}`,
+		"stats" : 	`{"x":"360","y":"223","width":"300","height":"210"}`,
+	},
+
 };
 
 var shopkeepDatabase = JSON.parse(params['Shopkeepers']);
