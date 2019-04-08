@@ -146,7 +146,7 @@ var NCMenu = NCMenu || {};
  *
  * @help 
  * ----------------------------------------------------------------------------
- *   Non-Combat Menu v1.05 by mjshi
+ *   Non-Combat Menu v1.05a by mjshi
  *   Free for both commercial and non-commercial use, with credit.
  * ----------------------------------------------------------------------------
  *                               Menu Keywords
@@ -259,6 +259,26 @@ NCMenu.statusBG = (String(NCMenu.Parameters['Status Screen BG'])).replace(".png"
 NCMenu.saveBG = (String(NCMenu.Parameters['Save Screen BG'])).replace(".png", "");
 NCMenu.loadBG = (String(NCMenu.Parameters['Load Screen BG'])).replace(".png", "");
 NCMenu.optionsBG = (String(NCMenu.Parameters['Options Screen BG'])).replace(".png", "");
+
+//-----------------------------------------------------------------------------
+// Open Menu Screen Override
+//
+Game_Interpreter.prototype.command351 = function() {
+    if (!$gameParty.inBattle()) {
+        SceneManager.push(Scene_NCMenu);
+        Window_MenuCommand.initCommandPosition();
+    }
+    return true;
+};
+
+Scene_Map.prototype.callMenu = function() {
+    SoundManager.playOk();
+    SceneManager.push(Scene_NCMenu);
+    Window_MenuCommand.initCommandPosition();
+    $gameTemp.clearDestination();
+    this._mapNameWindow.hide();
+    this._waitCount = 2;
+};
 
 //=============================================================================
 // Scene_NCMenu
