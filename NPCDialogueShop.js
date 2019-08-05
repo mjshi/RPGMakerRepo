@@ -89,6 +89,7 @@ Imported.NPCDialogueShop = true;
 * @option Default 720p
 * @option Alternate (tale)
 * @option Shopkeep Display (gothicvoid)
+* @option Reverse Shop Layout (Guardinthena)
 * @desc What window layout to use. Setting this to anything other than custom will ignore the dimensions given below.
 * @default Custom
 *
@@ -232,6 +233,15 @@ var layoutLibrary = {
 		"sell" : 	`{"x":"10","y":"154","width":"500","height":"290"}`,
 		"bag" : 	`{"x":"575","y":"10","width":"200"}`,
 		"stats" : 	`{"x":"360","y":"223","width":"300","height":"210"}`,
+	},
+
+	"Reverse Shop Layout (Guardinthena)" : {
+		"command" :	`{"x":"0","y":"0","width":"576"}`,
+		"gold" : 	`{"x":"576","y":"0","width":"240"}`,
+		"items" : 	`{"x":"316","y":"290","width":"500","height":"190"}`,
+		"sell" : 	`{"x":"316","y":"290","width":"500","height":"190"}`,
+		"bag" : 	`{"x":"35","y":"400","width":"240"}`,
+		"stats" : 	`{"x":"521","y":"72","width":"295","height":"218"}`,
 	},
 
 };
