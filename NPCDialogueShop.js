@@ -152,7 +152,7 @@ Imported.NPCDialogueShop = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   NPC Dialogue Shop v1.01a by mjshi
+*   NPC Dialogue Shop v1.01b by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Installation: Place shopkeeper images in img/pictures, then define a 
@@ -621,8 +621,20 @@ Window_ShopStatus.prototype.isTouchedInsideFrame = function(area) {
 //-----------------------------------------------------------------------------
 // Window_ShopCommand
 //
+Window_ShopCommand.prototype.numVisibleRows = function() {
+    return 1;
+};
+
+Window_ShopCommand.prototype.maxItems = function() {
+    return 4;
+};
+
+Window_ShopCommand.prototype.windowWidth = function() {
+    return commandPos.width;
+};
+
 Window_ShopCommand.prototype.maxCols = function() {
-	return 4;
+	return this.maxItems();
 };
 
 Window_ShopCommand.prototype.makeCommandList = function() {
