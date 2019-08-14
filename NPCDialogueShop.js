@@ -124,6 +124,7 @@ Imported.NPCDialogueShop = true;
 * @default {"x":"510","y":"154","width":"295","height":"218"}
 *
 * @param Help Window Lines
+* @parent Layout
 * @type number
 * @desc Number of lines to show in the help/dialogue window
 * @default 4
@@ -239,9 +240,10 @@ var layoutLibrary = {
 		"command" :	`{"x":"0","y":"0","width":"576"}`,
 		"gold" : 	`{"x":"576","y":"0","width":"240"}`,
 		"items" : 	`{"x":"316","y":"290","width":"500","height":"190"}`,
-		"sell" : 	`{"x":"316","y":"290","width":"500","height":"190"}`,
+		"sell" : 	`{"x":"316","y":"362","width":"500","height":"190"}`,
 		"bag" : 	`{"x":"35","y":"400","width":"240"}`,
 		"stats" : 	`{"x":"521","y":"72","width":"295","height":"218"}`,
+		"helpLines" : 3,
 	},
 
 };
@@ -256,7 +258,7 @@ var sellItemListPos =	JSON.parse(layout.sell);
 var possessPos = 		JSON.parse(layout.bag);
 var actorStatPos = 		JSON.parse(layout.stats);
 
-var helpLines = parseInt(params['Help Window Lines']);
+var helpLines = layout.helpLines || parseInt(params['Help Window Lines']);
 var commonEventName = params['Common Event Name'];
 var commonEventID = params['Common Event ID'];
 var shopkeepNumber = parseInt(params['Shopkeep Variable']);
@@ -307,9 +309,23 @@ Scene_Shop.prototype.createNPCBackground = function() {
 	this.addChild(this._NPC);
 };
 
+//-----------------------------------------------------------------
+// Window_ShopGold class to extend alignment options without
+// disrupting the diplay of other gold windows
+//
+function Window_ShopGold() {
+    this.initialize.apply(this, arguments);
+}
+Window_ShopGold.prototype = Object.create(Window_Gold.prototype);
+Window_ShopGold.prototype.constructor = Window_ShopGold;
+
+Window_Gold.prototype.windowWidth = function() {
+    return goldPos.width;
+};
+// END
+
 Scene_Shop.prototype.createGoldWindow = function() {
-	this._goldWindow = new Window_Gold(goldPos.x, goldPos.y);
-	this._goldWindow.width = goldPos.width;
+	this._goldWindow = new Window_ShopGold(goldPos.x, goldPos.y);
 	this.addWindow(this._goldWindow);
 };
 
@@ -563,7 +579,6 @@ Window_ShopStatus.prototype.drawDarkRect = function(dx, dy, dw, dh) {
 Window_ShopStatus.prototype.drawActorParamChange = function(x, y, actor, item1) {
 	var xo = x;
     var width = this.contents.width/2 - this.textPadding()*2;
-    console.log(this._item.params);
     this.contents.fontSize = this.standardFontSize() - fontDecrement;
 
     for (var i = 0; i < 8; i++) {
