@@ -90,6 +90,7 @@ Imported.NPCDialogueShop = true;
 * @option Alternate (tale)
 * @option Shopkeep Display (gothicvoid)
 * @option Reverse Shop Layout (Guardinthena)
+* @option Front and Center Layout 720p (Guardinthena)
 * @desc What window layout to use. Setting this to anything other than custom will ignore the dimensions given below.
 * @default Custom
 *
@@ -154,7 +155,7 @@ Imported.NPCDialogueShop = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   NPC Dialogue Shop v1.01b by mjshi
+*   NPC Dialogue Shop v1.01c by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Installation: Place shopkeeper images in img/pictures, then define a 
@@ -246,6 +247,15 @@ var layoutLibrary = {
 		"helpLines" : 3,
 	},
 
+	"Front and Center Layout 720p (Guardinthena)" : {
+		"command" :	`{"x":"0","y":"0","width":"1280"}`,
+		"gold" : 	`{"x":"20","y":"88","width":"240"}`,
+		"items" : 	`{"x":"20","y":"160","width":"480","height":"400"}`,
+		"sell" : 	`{"x":"20","y":"232","width":"480","height":"328"}`,
+		"bag" : 	`{"x":"260","y":"88","width":"240"}`,
+		"stats" : 	`{"x":"840","y":"328","width":"420","height":"230"}`,
+		"helpLines" : 3,
+	},
 };
 
 var shopkeepDatabase = JSON.parse(params['Shopkeepers']);
