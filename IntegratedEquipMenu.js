@@ -9,6 +9,10 @@ Imported.IntegratedEquipMenu = true;
 * @plugindesc Equip items through the Weapons/Armors tabs in the item menu!
 * @author mjshi
 *
+* @param Visible Stats
+* @desc Which stats to show the difference of. Default: mhp, mmp, atk, def, matk, mdef, agi, luk
+* @default 0, 1, 2, 3, 4, 5, 6, 7
+*
 * @param Window Width
 * @desc Width of the window.
 * @default Graphics.boxWidth / 2
@@ -93,7 +97,7 @@ Imported.IntegratedEquipMenu = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   Integrated Equip Menu v1.01 by mjshi
+*   Integrated Equip Menu v1.02 by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Plug & Play. No options and little to no configuration needed!
@@ -109,6 +113,7 @@ Imported.IntegratedEquipMenu = true;
 /* BEGIN */
 
 var params = PluginManager.parameters('IntegratedEquipMenu');
+var statsList = params["Visible Stats"].split(', ').map( Number );;
 var showName = params["Show Names"] === "true";
 var persistentMini = params["Always Concise Format"] === "true";
 var noneText = params["None Text"];
@@ -254,7 +259,8 @@ Window_IntegratedEquipMenu.prototype.determineFormat = function() {
 		tempActor.forceChangeEquip(this.getSlotID(), this.equip());
 		
 		var newValue, diffValue;
-		for (var i = 0; i < 8; i++) {
+		for (var j = 0; j < statsList.length; j++) {
+			let i = statsList[j];
 			newValue = tempActor.param(i);
 			diffValue = newValue - actor.param(i);
 
@@ -269,7 +275,12 @@ Window_IntegratedEquipMenu.prototype.itemRect = function(index) {
 	if (this._format === -1) {
 		if (!showHorizontal) {
 			var longest = "";
-			for (var i = 0; i < 8; i++) if (TextManager.param(i).length > longest.length) longest = TextManager.param(i);
+			for (var j = 0; j < statsList.length; j++) {
+				let i = statsList[j];
+				if (TextManager.param(i).length > longest.length) {
+					longest = TextManager.param(i);
+				}
+			}
 		    longest = this.textWidth(longest) + this.textPadding()*2 + paramBuffer;
 
 		    var rect = new Rectangle();
@@ -318,11 +329,17 @@ Window_IntegratedEquipMenu.prototype.drawAllItems = function() {
 		if (showHorizontal) {
 			var rect = this.itemRect(0);
 			var y = rect.y - this.lineHeight(), width = (rect.width - paramLeftBuffer) / 8;
-			for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), paramLeftBuffer + i * width, y, width, 'center');
+			for (var j = 0; j < statsList.length; j++) {
+				let i = statsList[j];
+				this.drawText(TextManager.param(i), paramLeftBuffer + i * width, y, width, 'center');
+			}
 
 			this.drawItemName(this.equip(), (rect.width - (Window_Base._iconWidth + 4 + this.textWidth(this.equip().name))) / 2, itemNameY)
 		} else {
-			for (var i = 0; i < 8; i++) this.drawText(TextManager.param(i), paramLeftBuffer, this.lineHeight() * i + (yBuffer + betweenBuffer + afterBuffer));
+			for (var j = 0; j < statsList.length; j++) {
+				let i = statsList[j];
+				this.drawText(TextManager.param(i), paramLeftBuffer, this.lineHeight() * i + (yBuffer + betweenBuffer + afterBuffer));
+			}
 		}
 	}
 };
@@ -335,7 +352,8 @@ Window_IntegratedEquipMenu.prototype.drawHorzItem = function(index) {
 	var width = (this.itemRect(0).width - paramLeftBuffer) / 8;
 	var tempActor = JsonEx.makeDeepCopy(actor);
 	tempActor.forceChangeEquip(this.getSlotID(), this.equip());
-	for (var i = 0; i < 8; i++) {
+	for (var j = 0; j < statsList.length; j++) {
+		let i = statsList[j];
 		newValue = tempActor.param(i);
 		this.changeTextColor(this.paramchangeTextColor(tempActor.param(i) - actor.param(i)));
 		this.drawText(tempActor.param(i), paramLeftBuffer + i*width, rect.y + (rect.height - this.lineHeight())/2, width, 'center');
@@ -371,7 +389,9 @@ Window_IntegratedEquipMenu.prototype.drawItem = function(index) {
 
 	var tempActor = JsonEx.makeDeepCopy(actor), newValue, diffValue, align;
 	tempActor.forceChangeEquip(this.getSlotID(), this.equip());
-	for (var i = 0; i < 8; i++) {
+	for (var j = 0; j < statsList.length; j++) {
+		let i = statsList[j];
+
 		newValue = tempActor.param(i);
 		diffValue = newValue - actor.param(i);
 
