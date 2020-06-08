@@ -2,21 +2,28 @@
 function Check() {};
 
 /*:
- * @plugindesc Some handy shorthands for your conditional branches.
+ * @plugindesc Conditional Branch+ v2: Checks for various things.
  * Read help file for more information.
  * @author mjshi
  *
  * @help
  * ------------------------------------------------------------------------------
- *    Conditional Branch+ v1.2a
+ *    Conditional Branch+ v2
  *     Extends the functionality of what a conditional branch can check.
  *     By mjshi, OK for use in all projects with credit.
  * ------------------------------------------------------------------------------
  * How to use:
  * On a conditional branch, go to the fourth tab and select the "Script" option.
  * Type in desired thing to check. See below...
+ * ------------------------------------------------------------------------------
+ *    Update 2.0!
+ *     Added support for checking all ids or items in a given range.
+ *     Rather than Check.has(1, 2, 3, 4, 10), you can type Check.has("1-4", 10)
+ *     Simply type "1-4" or "1 to 4" or "1...4" or any variant you want, so long
+ *     as the separator between the start and stop is a non-digit character.
  * ==============================================================================
  *               Asterisk (*) means multiple inputs are accepted.
+ *       Tilde (~) means that string ranges can be used for that parameter.
  * ==============================================================================
  * Combining Checks
  * Use "&&", "||", and "()" to combine several checks in a conditional branch.
@@ -33,21 +40,29 @@ function Check() {};
  * ------------------------------------------------------------------------------
  *    Items
  * ------------------------------------------------------------------------------
- * Check.has(*items)
+ * Check.has(~*items)
  * -- EX: Check.has(1, 3, 4)
  * -- checks if player has items 1, 3, and 4 in inventory.
+ * -- EX: Check.has("1-4")
+ * -- checks if player has items 1 through 4 in inventory.
  * 
- * Check.has_more(*items, number)
+ * Check.has_more(~*items, number)
  * -- EX: Check.has_more(1, 2, 3, 4, 5)
  * -- checks if player has at least five (includes 5) of items 1, 2, 3, 4.
+ * -- EX: Check.has_more("1-4", 5)
+ * -- checks if player has at least five of items 1 through 4 in inventory.
  * 
- * Check.has_less(*items, number)
+ * Check.has_less(~*items, number)
  * -- EX: Check.has_less(1, 2, 3, 4, 5)
  * -- checks if player has at most five (includes 5) of items 1, 2, 3, 4.
+ * -- EX: Check.has_less("1-4", 5)
+ * -- checks if player has at most five of items 1 through 4 in inventory.
  * 
- * Check.has_any(*items)
+ * Check.has_any(~*items)
  * -- EX: Check.has_any(1, 3, 4)
  * -- checks if player has either item 1, 3, or 4 in inventory.
+ * -- EX: Check.has_any("1-4")
+ * -- checks if player has any of the item IDS from 1 to 4.
  * 
  * Check.each_more(*[item, number])
  * -- EX: Check.each_more([1, 2], [2, 4])
@@ -84,63 +99,53 @@ function Check() {};
  *
  *              **The following commands check the inventory ONLY**
  *
- * Check.has_weapon(*ids)
- * Check.has_armor(*ids)
- * Check.weapon_any(*ids)
- * Check.armor_any(*ids)
+ * Check.has_weapon(~*ids)
+ * Check.has_armor(~*ids)
+ * Check.weapon_any(~*ids)
+ * Check.armor_any(~*ids)
  * -- EX: Check.has_weapon(1, 3, 4)
  * -- checks if player has weapons 1, 3, and 4 in their inventory
  * -- EX: Check.armor_any(1, 3, 4)
  * -- checks if player has either armor 1, 3, or 4 in their inventory
+ * -- EX: Check.weapon_any("1-4")
+ * -- checks if player has either of the weapons 1 through 4 in inventory
  *
- * Check.weapon_more(*ids, number)
- * Check.weapon_less(*ids, number)
- * Check.armor_more(*ids, number)
- * Check.armor_less(*ids, number)
+ * Check.weapon_more(~*ids, number)
+ * Check.weapon_less(~*ids, number)
+ * Check.armor_more(~*ids, number)
+ * Check.armor_less(~*ids, number)
  * -- EX: Check.weapon_more(2, 10)
  * -- checks if there are at least 10 of weapon id 2
  * -- EX: Check.armor_less(2, 10)
  * -- checks if there are at most 10 of armor id 2
  * ------------------------------------------------------------------------------
- *    Gold (Engine Default)
- * ------------------------------------------------------------------------------
- * $gameParty.gold() > amount
- * $gameParty.gold() < amount
- * $gameParty.gold() >= amount
- * $gameParty.gold() <= amount
- *
- * ------------------------------------------------------------------------------
  *    Variables
  * ------------------------------------------------------------------------------
- * Check.is_any(variable, *values)
+ * Check.is_any(variable, ~*values)
  * -- EX: Check.is_any(1, 3, 4, 5)
  * -- checks if variable 1 is either 3, 4, or 5.
  * 
- * Check.is_not(variable, *values)
+ * Check.is_not(variable, ~*values)
  * -- EX: Check.is_not(1, 3, 4, 5)
  * -- checks if variable 1 is neither 3, 4, nor 5.
  * 
- * Check.greater(*variables, value)
+ * Check.greater(~*variables, value)
  * -- EX: Check.greater(1, 2, 3, 5)
  * -- checks if variables 1, 2, and 3 are at least 5.
  * 
- * Check.vgreater(variable, *variables)
- * -- EX: Check.vgreater(1, 2, 3, 5)
- * -- checks if variable 1 is bigger than variables 2, 3, and 5.
- * 
- * Check.lesser(*variables, value)
+ * Check.lesser(~*variables, value)
  * -- EX: Check.lesser(1, 2, 3, 5)
  * -- checks if variables 1, 2, and 3 are at most 5.
  * 
- * Check.vlesser(variable, *variables)
- * -- EX: Check.vlesser(1, 2, 3, 5)
- * -- checks if variable 1 is smaller than variables 2, 3, and 5.
- * 
- * Check.in_range(*variables, start, stop)
+ * Check.in_range(~*variables, start, stop)
  * -- EX: Check.in_range(1, 3, 4, 5)
  * -- checks if variable 1 AND 3 are between 4 and 5, including 4 and 5.
  * 
- * Check.any_inrange(*variables, start, stop)
+ * Check.any_is(~*variables, value)
+ * -- EX: Check.any_is(1, 3, 4, 5)
+ * -- checks if variable 1 or 3 or 4 are equal to 5
+ * 
+ * Check.any_inrange(~*variables, start, stop)
  * -- EX: Check.any_inrange(1, 3, 4, 5)
  * -- checks if variable 1 OR 3 are between 4 and 5, including 4 and 5.
  * 
@@ -162,25 +167,29 @@ function Check() {};
  * ------------------------------------------------------------------------------
  *    Switches
  * ------------------------------------------------------------------------------
- * Check.all_true(*switches)
+ * Check.all_true(~*switches)
  * -- EX: Check.all_true(1, 2, 3)
  * -- checks if switches 1, 2, 3 are true.
+ * -- EX: Check.all_true("1-4")
+ * -- checks if switches 1 through 4 are true.
  * 
- * Check.true(*switches)
+ * Check.true(~*switches)
  * -- Same behavior as above
  *
- * Check.any_true(*switches)
+ * Check.any_true(~*switches)
  * -- EX: Check.any_true(1, 2, 3)
  * -- checks if either of switches 1, 2, 3 are true.
  * 
- * Check.all_false(*switches)
+ * Check.all_false(~*switches)
  * -- EX: Check.all_false(1, 2, 3)
  * -- checks if switches 1, 2, 3 are false.
+ * -- EX: Check.all_false("1-4")
+ * -- checks if switches 1 through 4 are false.
  * 
- * Check.false(*switches)
+ * Check.false(~*switches)
  * -- Same behavior as above
  * 
- * Check.any_false(*switches)
+ * Check.any_false(~*switches)
  * -- EX: Check.any_false(1, 2, 3)
  * -- checks if either of switches 1, 2, 3 are false.
  * 
@@ -193,30 +202,52 @@ function Check() {};
 
 Check.has = function () {
 	var items = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < items.length; i++) {if (!$gameParty.hasItem($dataItems[items[i]])) return false}
-		return true;
+
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if (!$gameParty.hasItem($dataItems[j])) return false;
+		} else if (!$gameParty.hasItem($dataItems[items[i]])) return false;
+	}
+	return true;
 };
+
+	// for (var i = 0; i < items.length; i++) {
+	// 	if (typeof items[i] === 'string') for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if (condition) return false;
+	// 	if (condition) return false;
+	// }
 
 Check.has_more = function () {
 	var items = Array.prototype.slice.call(arguments);
 	var number = items.pop();
 
-	for (var i = 0; i < items.length; i++) {if ($gameParty.numItems($dataItems[items[i]]) < number) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.numItems($dataItems[j]) < number) return false;
+		} else if ($gameParty.numItems($dataItems[items[i]]) < number) return false;
+	}
+	return true;
 };
 
 Check.has_less = function () {
 	var items = Array.prototype.slice.call(arguments);
 	var number = items.pop();
-
-	for (var i = 0; i < items.length; i++) {if ($gameParty.numItems($dataItems[items[i]]) > number) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.numItems($dataItems[j]) > number) return false;
+		} else if ($gameParty.numItems($dataItems[items[i]]) > number) return false;
+	}
+	return true;
 };
 
 Check.has_any = function() {
 	var items = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < items.length; i++) {if ($gameParty.hasItem($dataItems[items[i]])) return true}
-		return false;
+
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.hasItem($dataItems[j])) return true;
+		} else if ($gameParty.hasItem($dataItems[items[i]])) return true;
+	}
+	return false;
 };
 
 Check.each_more = function() {
@@ -316,58 +347,91 @@ Check.equipped_any = Check.any_equipped;
 
 Check.has_weapon = function() {
 	var items = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < items.length; i++) {if (!$gameParty.hasItem($dataWeapons[items[i]])) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if (!$gameParty.hasItem($dataWeapons[j])) return false;
+		} else if (!$gameParty.hasItem($dataWeapons[items[i]])) return false;
+	}
+	return true;
 };
 
 Check.has_armor = function() {
 	var items = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < items.length; i++) {if (!$gameParty.hasItem($dataArmors[items[i]])) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if (!$gameParty.hasItem($dataArmors[j])) return false;
+		} else if (!$gameParty.hasItem($dataArmors[items[i]])) return false;
+	}
+	return true;
 };
 
 Check.weapon_any = function() {
 	var items = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < items.length; i++) {if ($gameParty.hasItem($dataWeapons[items[i]])) return true}
-		return false;
+
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.hasItem($dataWeapons[j])) return true;
+		} else if ($gameParty.hasItem($dataWeapons[items[i]])) return true;
+	}
+	return false;
 };
 
 Check.armor_any = function() {
 	var items = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < items.length; i++) {if ($gameParty.hasItem($dataArmors[items[i]])) return true}
-		return false;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.hasItem($dataArmors[j])) return true;
+		} else if ($gameParty.hasItem($dataArmors[items[i]])) return true;
+	}
+	return false;
 };
 
 Check.weapon_more = function() {
 	var items = Array.prototype.slice.call(arguments);
 	var number = items.pop();
 
-	for (var i = 0; i < items.length; i++) {if ($gameParty.numItems($dataWeapons[items[i]]) < number) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.numItems($dataWeapons[j]) < number) return false;
+		} else if ($gameParty.numItems($dataWeapons[items[i]]) < number) return false;
+	}
+	return true;
 };
 
 Check.armor_more = function() {
 	var items = Array.prototype.slice.call(arguments);
 	var number = items.pop();
 
-	for (var i = 0; i < items.length; i++) {if ($gameParty.numItems($dataArmors[items[i]]) < number) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.numItems($dataArmors[j]) < number) return false;
+		} else if ($gameParty.numItems($dataArmors[items[i]]) < number) return false;
+	}
+	return true;
 };
 
 Check.weapon_less = function() {
 	var items = Array.prototype.slice.call(arguments);
 	var number = items.pop();
 
-	for (var i = 0; i < items.length; i++) {if ($gameParty.numItems($dataWeapons[items[i]]) > number) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.numItems($dataWeapons[j]) > number) return false;
+		} else if ($gameParty.numItems($dataWeapons[items[i]]) > number) return false;
+	}
+	return true;
 };
 
 Check.armor_less = function() {
 	var items = Array.prototype.slice.call(arguments);
 	var number = items.pop();
 
-	for (var i = 0; i < items.length; i++) {if ($gameParty.numItems($dataArmors[items[i]]) > number) return false}
-		return true;
+	for (var i = 0; i < items.length; i++) {
+		if (typeof items[i] === 'string') {
+			for (var j = parseInt(items[i]), k = parseInt(items[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameParty.numItems($dataArmors[j]) > number) return false;
+		} else if ($gameParty.numItems($dataArmors[items[i]]) > number) return false;
+	}
+	return true;
 };
 
 /* Variables */
@@ -376,16 +440,24 @@ Check.is_any = function() {
 	var values = Array.prototype.slice.call(arguments);
 	var id = values.shift();
 
-	for (var i = 0; i < values.length; i++) {if ($gameVariables.value(id) == values[i]) return true}
-		return false;
+	for (var i = 0; i < values.length; i++) {
+		if (typeof values[i] === 'string') {
+			for (var j = parseInt(values[i]), k = parseInt(values[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameVariables.value(id) == j) return true;
+		} else if ($gameVariables.value(id) == values[i]) return true;
+	}
+	return false;
 };
 
 Check.is_not = function() {
 	var values = Array.prototype.slice.call(arguments);
 	var id = values.shift();
 
-	for (var i = 0; i < values.length; i++) {if ($gameVariables.value(id) == values[i]) return false}
-		return true;
+	for (var i = 0; i < values.length; i++) {
+		if (typeof values[i] === 'string') {
+			for (var j = parseInt(values[i]), k = parseInt(values[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameVariables.value(id) == j) return false;
+		} else if ($gameVariables.value(id) == values[i]) return false;
+	}
+	return true;
 };
 
 Check.greater = function() {
@@ -393,17 +465,9 @@ Check.greater = function() {
 	var value = vars.pop();
 
 	for (var i = 0; i < vars.length; i++) {
-		if ($gameVariables.value(vars[i]) < value) return false;
-	}
-	return true;
-};
-
-Check.vgreater = function() {
-	var vars = Array.prototype.slice.call(arguments);
-	var orig = vars.shift();
-
-	for (var i = 0; i < vars.length; i++) {
-		if ($gameVariables.value(orig) < $gameVariables.value(vars[i])) return false;
+		if (typeof vars[i] === 'string') {
+			for (var j = parseInt(vars[i]), k = parseInt(vars[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameVariables.value(j) < value) return false;
+		} else if ($gameVariables.value(vars[i]) < value) return false;
 	}
 	return true;
 };
@@ -413,17 +477,9 @@ Check.lesser = function() {
 	var value = vars.pop();
 
 	for (var i = 0; i < vars.length; i++) {
-		if ($gameVariables.value(vars[i]) > value) return false;
-	}
-	return true;
-};
-
-Check.vlesser = function() {
-	var vars = Array.prototype.slice.call(arguments);
-	var orig = vars.shift();
-
-	for (var i = 0; i < vars.length; i++) {
-		if ($gameVariables.value(orig) > $gameVariables.value(vars[i])) return false;
+		if (typeof vars[i] === 'string') {
+			for (var j = parseInt(vars[i]), k = parseInt(vars[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameVariables.value(j) > value) return false;
+		} else if ($gameVariables.value(vars[i]) > value) return false;
 	}
 	return true;
 };
@@ -433,8 +489,22 @@ Check.in_range = function() {
 	var stop = ids.pop();
 	var start = ids.pop();
 
-	for (var i = 0; i < ids.length; i++) {if ($gameVariables.value(ids[i]) < start || $gameVariables.value(ids[i]) > stop) return false}
-		return true;
+	for (var i = 0; i < ids.length; i++) {
+		if (typeof ids[i] === 'string') {
+			for (var j = parseInt(ids[i]), k = parseInt(ids[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameVariables.value(j) < start || $gameVariables.value(j) > stop) return false;
+		} else if ($gameVariables.value(ids[i]) < start || $gameVariables.value(ids[i]) > stop) return false;
+	}
+	return true;
+};
+
+Check.any_is = function() {
+	var ids = Array.prototype.slice.call(arguments);
+	var value = ids.pop();
+
+	for (var i = 0; i < ids.length; i++) {
+		if ($gameVariables.value(ids[i]) == value) return true;
+	}
+	return false;
 };
 
 Check.any_inrange = function() {
@@ -442,8 +512,12 @@ Check.any_inrange = function() {
 	var stop = ids.pop();
 	var start = ids.pop();
 
-	for (var i = 0; i < ids.length; i++) {if ($gameVariables.value(ids[i]) >= start && $gameVariables.value(ids[i]) <= stop) return true}
-		return false;
+	for (var i = 0; i < ids.length; i++) {
+		if (typeof ids[i] === 'string') {
+			for (var j = parseInt(ids[i]), k = parseInt(ids[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameVariables.value(j) >= start && $gameVariables.value(j) <= stop) return true;
+		} else if ($gameVariables.value(ids[i]) >= start || $gameVariables.value(ids[i]) <= stop) return true;
+	}
+	return false;
 };
 
 Check.each_is = function() {
@@ -474,30 +548,49 @@ Check.each_inrange = function() {
 
 Check.all_true = function() {
 	var switches = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < switches.length; i++) {if (!$gameSwitches.value(switches[i])) return false}
-		return true;
+	for (var i = 0; i < switches.length; i++) {
+		if (typeof switches[i] === 'string') {
+			for (var j = parseInt(switches[i]), k = parseInt(switches[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if (!$gameSwitches.value(j)) return false;
+		} else if (!$gameSwitches.value(switches[i])) return false;
+	}
+	return true;
 };
 
 Check.true = Check.all_true;
 
 Check.any_true = function() {
 	var switches = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < switches.length; i++) {if ($gameSwitches.value(switches[i])) return true}
-		return false;
+
+	for (var i = 0; i < switches.length; i++) {
+		if (typeof switches[i] === 'string') {
+			for (var j = parseInt(switches[i]), k = parseInt(switches[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameSwitches.value(j)) return true;
+		} else if ($gameSwitches.value(switches[i])) return true;
+	}
+	return false;
 };
 
 Check.all_false = function() {
 	var switches = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < switches.length; i++) {if ($gameSwitches.value(switches[i])) return false}
-		return true;
+
+	for (var i = 0; i < switches.length; i++) {
+		if (typeof switches[i] === 'string') {
+			for (var j = parseInt(switches[i]), k = parseInt(switches[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if ($gameSwitches.value(j)) return false;
+		} else if ($gameSwitches.value(switches[i])) return false;
+	}
+	return true;
 };
 
 Check.false = Check.all_false;
 
 Check.any_false = function() {
 	var switches = Array.prototype.slice.call(arguments);
-	for (var i = 0; i < switches.length; i++) {if (!$gameSwitches.value(switches[i])) return true}
-		return false;
+
+	for (var i = 0; i < switches.length; i++) {
+		if (typeof switches[i] === 'string') {
+			for (var j = parseInt(switches[i]), k = parseInt(switches[i].replace(/[0-9]+\D+/, "")); j <= k; j++) if (!$gameSwitches.value(j)) return true;
+		} else if (!$gameSwitches.value(switches[i])) return true;
+	}
+	return false;
 };
 
 Check.each_switch = function() {
