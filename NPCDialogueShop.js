@@ -155,7 +155,7 @@ Imported.NPCDialogueShop = true;
 * @param
 * @help 
 * ------------------------------------------------------------------------------
-*   NPC Dialogue Shop v1.01c by mjshi
+*   NPC Dialogue Shop v1.01d by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ------------------------------------------------------------------------------
 *   Installation: Place shopkeeper images in img/pictures, then define a 
@@ -329,7 +329,7 @@ function Window_ShopGold() {
 Window_ShopGold.prototype = Object.create(Window_Gold.prototype);
 Window_ShopGold.prototype.constructor = Window_ShopGold;
 
-Window_Gold.prototype.windowWidth = function() {
+Window_ShopGold.prototype.windowWidth = function() {
     return goldPos.width;
 };
 // END
