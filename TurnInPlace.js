@@ -17,7 +17,7 @@ var TurnInPlace = {};
 * 
 * @help 
 * ----------------------------------------------------------------------------
-*   Turn In Place v1.0 by mjshi
+*   Turn In Place v1.0a by mjshi
 *   Free for both commercial and non-commercial use, with credit.
 * ----------------------------------------------------------------------------
 * > Inspired by "Player Turn & Move" by SirBilly (silentkingdom.com)
@@ -39,15 +39,19 @@ Game_Player.prototype.initialize = function() {
 
 var turn_in_place_alias_game_player_update = Game_Player.prototype.update;
 Game_Player.prototype.update = function(sceneActive) {
-    if ($gameMap.isEventRunning()) {this._waitCount = 0}
     turn_in_place_alias_game_player_update.call(this, sceneActive);
+
+    if ($gameMap.isEventRunning()) {
+        return;
+    }
+
+    this._waitCount = Math.max( 0, this._waitCount - 1 );
 
     if (!(Input.isPressed("up") || Input.isPressed("down") || 
         Input.isPressed("left") || Input.isPressed("right") || 
         TouchInput.isPressed())) {
-            this._waitCount = TurnInPlace.waitCount}
-
-    if (this._waitCount > 0) {this._waitCount -= 1}
+            this._waitCount = TurnInPlace.waitCount;
+    }
 };
 
 Game_Player.prototype.moveByInput = function() {
