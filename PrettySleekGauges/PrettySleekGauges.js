@@ -279,7 +279,7 @@ Imported.PrettySleekGauges = true;
  * @param
  * @help 
  * ----------------------------------------------------------------------------
- *   Pretty Sleek Gauges v1.03e
+ *   Pretty Sleek Gauges v1.03f
  * ----------------------------------------------------------------------------
  *   Free to use in any project with credit to:
  *     Vlue             (original plugin)
@@ -695,6 +695,16 @@ Special_Gauge.prototype.fontSize = function() {
     return gaugeFontSize;
 }
 
+Special_Gauge.prototype.useCriticalColor = function() {
+    if (this.critText()) {
+        if (this._curVal < this._maxVal / 10) {
+            this._window.changeTextColor(this._window.deathColor());
+        } else if (this._curVal < this._maxVal / 4) {
+            this._window.changeTextColor(this._window.crisisColor());
+        }
+    }
+}
+
 Special_Gauge.prototype.drawText = function() {
     if (this._vocab) {
         var width = this._width;
@@ -705,28 +715,26 @@ Special_Gauge.prototype.drawText = function() {
         if (this._showEHPHP) {
             this._window.changeTextColor(this._window.systemColor());
             this._window.drawText(this._text, this._x + 1, this._y + this._yOffset);
-            width -= this._window.textWidth(this._text);
-            x += this._window.textWidth(this._text);
         }
 
         if (this._showEHPText) {
             width -= textRightBuffer;
             this._window.changeTextColor(this._window.normalColor());
-            if (this.critText()) {
-                if (this._curVal < this._maxVal / 10) {
-                    this._window.changeTextColor(this._window.deathColor());
-                } else if (this._curVal < this._maxVal / 4) {
-                    this._window.changeTextColor(this._window.crisisColor());
-                }
-            }
+            
+            this.useCriticalColor();
 
             if (!this._maxVal || this._width < 186) {
                 this._window.drawText(Math.round(this._curVal), x, this._y + this._yOffset, width, "right");
             } else {
-                this._window.drawText(Math.round(this._curVal), x, this._y + this._yOffset, width - this._window.textWidth("/" + this._maxVal), "right");
                 this._window.changeTextColor(this._window.normalColor());
-                this._window.drawText("/", x, this._y + this._yOffset, width - this._window.textWidth(this._maxVal), "right");
                 this._window.drawText(this._maxVal, x, this._y + this._yOffset, width, "right");
+                width -= this._window.textWidth("" + this._maxVal);
+                
+                this._window.drawText("/", x, this._y + this._yOffset, width, "right");
+                width -= this._window.textWidth("/");
+
+                this.useCriticalColor();
+                this._window.drawText(Math.round(this._curVal), x, this._y + this._yOffset, width, "right");
             }
         }
 
