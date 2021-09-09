@@ -259,13 +259,6 @@ Imported.PrettySleekGauges = true;
  * @parent Extras
  * @default false
  *
- * @param Show EXP Bar
- * @parent Extras
- * @desc Show the EXP bar?
- * (true/false)
- * @default true
- * @type boolean
- *
  * @param Status Icon XY Offset
  * @parent Extras
  * @desc Manually control where status icons are placed. Leave blank if you don't have out of battle statuses. Format: X, Y
@@ -333,6 +326,10 @@ Imported.PrettySleekGauges = true;
  * - all gauges no longer need a maximum value to work
  * - gauges won't animate when picking an actor to target during battle
  * - changed how critical text colors are handled
+ * ----------------------------------------------------------------------------
+ * Tamaki Awana's edits:
+ * - black lines when numbers are scrolling removed
+ * - remove duplicate parameters
  * ----------------------------------------------------------------------------
  * > Is something broken? Go to http://mjshi.weebly.com/contact.html and I'll
  *   try my best to help you!
@@ -626,8 +623,10 @@ Special_Gauge.prototype.shouldntAnimate = function() {
 Special_Gauge.prototype.refresh = function() {
     var gy = this._y + this._window.lineHeight() - 2;
     if (this._vocab) {
-        gy -= this.fontSize();
-        this._window.contents.clearRect(this._x-1, gy, this._width + 2, this.fontSize() + 2);		
+        var ow = this._window.contents.outlineWidth;
+        gy -= (this.fontSize() + (ow - 2));
+        /* If this._vocab has value, subtract more outlineWidth from gy. */
+        this._window.contents.clearRect(this._x - 1, gy, this._width + 2, this.fontSize() + ow);	
     } else {
         gy -= this._height;
         this._window.contents.clearRect(this._x, gy, this._width + 2, this._height);
