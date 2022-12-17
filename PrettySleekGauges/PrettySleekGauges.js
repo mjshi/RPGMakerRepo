@@ -328,6 +328,7 @@ Imported.PrettySleekGauges = true;
  * - changed how critical text colors are handled
  * ----------------------------------------------------------------------------
  * Tamaki Awana's edits:
+ * - filled the hole of pending cursor that is shown when formation mode
  * - black lines when numbers are scrolling removed
  * - remove duplicate parameters
  * ----------------------------------------------------------------------------
@@ -626,10 +627,29 @@ Special_Gauge.prototype.refresh = function() {
         var ow = this._window.contents.outlineWidth;
         gy -= (this.fontSize() + (ow - 2));
         /* If this._vocab has value, subtract more outlineWidth from gy. */
-        this._window.contents.clearRect(this._x - 1, gy, this._width + 2, this.fontSize() + ow);	
+        var gyint = Math.floor(gy);
+        var gydcm = gy - gyint;
+        /* Get value after the decimal point of gy. */
+        if (this._window instanceof Window_MenuStatus) {
+            /* on Formation mode at Window_MenuStatus*/
+            if (this._window.pendingIndex() >= 0 && this._window.index() === this._window.pendingIndex()) {
+                var color = this._window.pendingColor();
+                this._window.contents.clearRect(this._x - 1, gy + gydcm, this._width + 2, this.fontSize() + ow);
+                this._window.changePaintOpacity(false);
+                this._window.contents.fillRect(this._x - 1, gy + gydcm, this._width + 2, this.fontSize() + ow, color);
+                this._window.changePaintOpacity(true);
+            } else {
+                this._window.contents.clearRect(this._x - 1, gy + gydcm, this._width + 2, this.fontSize() + ow);
+            }
+        } else {
+            this._window.contents.clearRect(this._x - 1, gy + gydcm, this._width + 2, this.fontSize() + ow);
+        }
     } else {
         gy -= this._height;
-        this._window.contents.clearRect(this._x, gy, this._width + 2, this._height);
+        var gyint = Math.floor(gy);
+        var gydcm = gy - gyint;
+        /* Get value after the decimal point of gy. */
+        this._window.contents.clearRect(this._x, gy + gydcm, this._width + 2, this._height + gydcm);
     }
     this.drawGauge();
     this.drawText();
